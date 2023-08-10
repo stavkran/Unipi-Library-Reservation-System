@@ -1,0 +1,22 @@
+version: "2"
+services: 
+  services: 
+    mongodb:
+        image: mongo
+        restart: always
+        container_name: mongodb
+        ports:
+        - 27017:27017
+        volumes:
+        - ./data:/data/db
+  unipilirarysystem: 
+    build: .
+    restart: always
+    command: python -u app.py
+    container_name: unipi_LirarySystem
+    ports: 
+      - "5000:5000"
+    links:
+      - mongodb
+    # volumes:
+    #   - .:/uniLibData

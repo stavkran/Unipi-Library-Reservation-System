@@ -1,0 +1,38 @@
+{% extends "adminBase.html" %}
+{% block content %}
+  {% with messages = get_flashed_messages()%}
+    {% if messages %}
+      {%for msg in messages %}
+          <p>{{msg}}</p>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Update Book's Reservation Days -->
+  <center>
+  <div class="card-wrapper">
+    <div class="card">
+      <br><br>
+      <h1>Update Book's Reservation Days</h1><br>
+      <form action="/admin/bookReservationDays" method="POST" name="updateResDaysform">
+        <!-- Book Identification -->
+        <br><br><h2>Please type the ISBN code of the book's reservation days you wish to change.</h2><br>
+        <!-- ISBN code -->
+        <label for="isbn">ISBN:</label><br>
+        <input type="text" name="isbn" class="field" required><br>
+
+        <br><br><h2>Please type the new number of reservation days for this book.</h2><br>
+    
+        <!-- Reservation Days -->
+        <label for="reservationdays">Reservation Days: </label><br>
+        <input type="number" name="reservationdays" class="field" required><br>
+
+        <!-- Check for errors -->
+        <p class="error error--hidden"></p>
+        <!-- Create button -->
+        <input type="submit" value="Update" class="btn">
+      </form>
+    </div>
+    </div>
+    </center>
+{% endblock %}

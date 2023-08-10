@@ -1,0 +1,30 @@
+{% extends "adminBase.html" %}
+
+{% block content %}
+  {% with messages = get_flashed_messages()%}
+    {% if messages %}
+      {%for msg in messages %}
+          <p>{{msg}}</p>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Delete Book -->
+  <center>
+  <div class="card-wrapper">
+    <div class="card">
+      <br><br>
+      <h1>Delete Book</h1><br>
+      <form action="/admin/deleteBook" method="POST" name="adminDeleteBookform">
+        <!-- ISBN -->
+        <label for="isbn">ISBN: </label><br>
+        <input type="text" name="isbn" class="field" required><br>
+        <!-- Check for errors -->
+        <p class="error error--hidden"></p>
+        <!-- Create button -->
+        <input type="submit" value="Delete" class="btn">
+      </form>
+    </div>
+    </div>
+    </center>
+{% endblock %}

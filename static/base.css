@@ -1,0 +1,61 @@
+body, .card {
+    background-color: var(--navy);
+    font-family: Montserrat, sans-serif;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: var(--slate);
+}
+
+.center, .list-group-item {
+    background-color: var(--navy);
+    font-family: Montserrat, sans-serif;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: var(--slate);
+}
+
+a.navbar-brand {
+    color: var(--green-bright);
+}
+
+a.navbar-brand:hover {
+    color: var(--green-tint);
+}
+
+a.nav-item, a.nav-link {
+    color: var(--slate);
+}
+
+a.nav-item:hover, a.nav-link:hover {
+    color: var(--light-slate);
+}
+
+a.navbar-item {
+    color: var(--green-bright);
+}
+
+a.navbar-item:hover {
+    color: var(--green-tint);
+}
+
+.navbar {
+    background-color: var(--lightest-navy);
+}
+
+h4, h5, h6 {
+    color: var(--slate);
+}
+
+h3 {
+    color: var(--lightest-slate);
+}
+
+h1, h2 {
+    color: var(--green-bright);
+}
+
+button, .btn, .button {
+    background-color: var(--green-bright);
+    color: var(--navy);
+    border: 1px solid var(--navy);
+}

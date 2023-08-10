@@ -1,0 +1,21 @@
+[
+	{
+        "title": "Emma",
+        "author": "Jane Austen",
+        "publicationdate": "1815-12-25",
+        "isbn": "978-1-23-456789-0",
+        "summary": "A novel about a young woman named Emma Woodhouse who fancies herself a matchmaker, leading to humorous and romantic entanglements in her small village.",
+        "pagesnum": 322,
+        "reservationdays": 14
+    },
+
+    {
+        "title": "The Great Gatsby",
+        "author": "F. Scott Fitzgerald",
+        "publicationdate": "1925-04-10",
+        "isbn": "978-3-16-148410-0",
+        "summary": "A novel set in the Jazz Age, depicting the lavish lifestyle of the wealthy elite in the 1920s.",
+        "pagesnum": 180,
+        "reservationdays": 7
+    }
+]

@@ -1,0 +1,20 @@
+[
+	{
+		"firstname": "Admin",
+        "surname": "User",
+		"email": "admin@email.com",
+        "mobile": "6901010101",
+        "password": "admin",
+        "dateofbirth": "2001-07-13",
+		"category": "admin"
+	},
+	{
+		"firstname": "Vincent",
+		"surname": "Peters",
+		"email": "vin@email.com",
+        "mobile": "6923232323",
+        "password": "12345",
+        "dateofbirth": "2000-04-27",
+		"category": "user"
+	}
+]
