@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <!-- Meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="/static/styles.css">
+    <!-- Title -->
+    <title>{% block title %}UniPi Lending Library System SignUp{% endblock title %}</title>
+  </head>
+  <body>
+    <!-- Flashed messages -->
+    {% block content %}
+    {% with messages = get_flashed_messages()%}
+      {% if messages %}
+        {%for msg in messages %}
+          <p>{{msg}}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Sign Up -->
+
+    <center>    
+    <div class="card-wrapper">
+    <div class="card">
+        <h1 class="center">Sign Up</h1>
+        <form action="/auth/signUp" method="POST" name="signUpform">
+            <!-- Firstname -->
+            <label for="firstname">Firstname: </label><br>
+            <input type="text" name="firstname" class="field" required><br><br>
+            <!-- Surname -->
+            <label for="surname">Surname: </label><br>
+            <input type="text" name="surname" class="field" required><br><br>
+            <!-- email -->
+            <label for="email">Email: </label><br>
+            <input type="text" name="email" class="field" required><br><br>
+            <!-- Password -->
+            <label for="password">Password: </label><br>
+            <input type="password" name="password" class="field" required><br><br>
+            <!-- Date Of Birth -->
+            <label for="dateofbirth">Date Of Birth: </label><br>
+            <input type="date" name="dateofbirth" class="field" required><br><br>
+
+            <!-- Check for errors -->
+            <p class="error error--hidden"></p>
+            <!-- Submit Button -->
+            <input type="submit" value="Sign Up" class="btn">
+        </form><br><br>
+        <!-- Sign In -->
+        <h5>Already have an account?</h5>
+        <p align="center"><a href="/auth/signIn">
+        <button class="btn btn-sm btn-outline-secondary" type="button">SignIn</button></a>
+        </p>
+    </div>
+    </div>
+
+    </center>
+
+
+    {% endblock %}
+
+    <!-- JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  </body>
+</html>
