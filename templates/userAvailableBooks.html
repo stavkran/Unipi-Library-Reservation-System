@@ -1,0 +1,45 @@
+{% extends "userBase.html" %}
+
+{% block title %}UniPi Lending Library{% endblock title %}
+{% block content %}
+
+<center>
+    <h2>Available Books:</h2>
+
+<!-- Flashed messages -->
+  {% with messages = get_flashed_messages()%}
+    {% if messages %}
+      {%for msg in messages %}
+          <p>{{msg}}</p>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+
+<!-- Show available books -->
+
+{% for book in books %}
+<div class="card-wrapper">
+  <div class="card">
+    <h1 class="center"></h1>
+    <form action="/user/userAvailableBooks" method="POST" name="userAvailableBooks_form">
+      <li class="list-group-item">
+        <p>
+          <strong>Book ID:</strong> {{ book._id }}<br>
+          <strong>Title:</strong> {{ book.title }}<br>
+          <strong>Author:</strong> <br> {{ book.author }}<br>
+          <strong>ISBN:</strong> {{ books.isbn }}<br>
+          <strong>Publication Date:</strong> {{ book.publicationdate }} <br>
+          <strong>Summary:</strong> {{ book.summary }} <br>
+          <strong>Number of Pages:</strong> {{ book.pagesnum }} <br>
+          <strong>Reservation Days:</strong> {{ book.reservationdays  }} <br>
+        </p>
+      </li>
+      <!-- Check for errors -->
+      <p class="error error--hidden"></p>
+    </form>
+  </div>
+</div>
+  {% endfor %}
+</center>
+{% endblock %}

@@ -10,7 +10,7 @@ client = MongoClient("mongodb://mongodb:27017/")
 db = client["UnipiLibrary"]
 usersDb = db["users"]
 booksDb = db["books"]
-reservedDb = db["reservedbooks"]
+reservedbooksDb = db["reservedbooks"]
 #Sign Up.
 @auth.route("/signUp", methods=["GET", "POST"])
 def signUp():

@@ -13,7 +13,7 @@ client = MongoClient("mongodb://mongodb:27017/")
 db = client["UnipiLibrary"]
 usersDb = db["users"]
 booksDb = db["books"]
-reservedDb = db["reservedbooks"]
+reservedbooksDb = db["reservedbooks"]
 
 #Admin Home Page
 @admin.route("/")
@@ -82,7 +82,7 @@ def deleteFlight():
         # Check if book registration exists.
         isbn = fk.request.form["isbn"]
         bookexists =booksDb.find_one({"isbn": isbn})
-        reservationexeists = reservedDb.find_one({"isbn": isbn})
+        reservationexeists = reservedbooksDb.find_one({"isbn": isbn})
 
         if (bookexists):
             # Check if the book is reserved by any user.
@@ -108,7 +108,7 @@ def searchViaTitle():
         title = fk.request.form["title"]
         bookresults = db.booksDb.find({"title": title})
         if bookresults:
-            reservedBook = db.reservedDb.find_one({"title": title})
+            reservedBook = db.reservedbooksDb.find_one({"title": title})
 
             if reservedBook is None:
                 return fk.render_template("adminSearchViaTitle.html", book=bookresults)
@@ -128,7 +128,7 @@ def searchViaAuthor():
         author = fk.request.form["author"]
         bookresults = db.booksDb.find({"author": author})
         if bookresults:
-            reservedBook = db.reservedDb.find_one({"author": author})
+            reservedBook = db.reservedbooksDb.find_one({"author": author})
 
             if reservedBook is None:
                 return fk.render_template("adminSearchViaAuthor.html", book=bookresults)
@@ -148,7 +148,7 @@ def searchViaISBN():
         isbn = fk.request.form["isbn"]
         bookresults = db.booksDb.find({"isbn": isbn})
         if bookresults:
-            reservedBook = db.reservedDb.find_one({"isbn": isbn})
+            reservedBook = db.reservedbooksDb.find_one({"isbn": isbn})
 
             if reservedBook is None:
                 return fk.render_template("adminSearchViaISBN.html", book=bookresults)
@@ -181,7 +181,7 @@ def showDetails():
         }
     
         # Check if the book is reserved
-        reserved_book = db.reservedDb.find_one({"title": book["title"]})
+        reserved_book = db.reservedbooksDb.find_one({"title": book["title"]})
         if reserved_book:
             user = reserved_book["user"]
             book_detail["reserved_by"] = {

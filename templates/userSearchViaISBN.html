@@ -1,0 +1,52 @@
+{% extends "userBase.html" %}
+{% block title %}Search Βοοκ via ISBN{% endblock %}
+{% block content %}
+  <!-- Flashed Messages -->
+  {% with messages = get_flashed_messages()%}
+    {% if messages %}
+      {%for msg in messages %}
+          <p>{{msg}}</p>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Search -->
+  <center>
+  <div class="card-wrapper">
+    <div class="card">
+      <h1 class="center">Search Book via ISBN</h1>
+      <form action="/user/searchViaISBN" method="POST" name="searchform">
+        <!-- ISBN -->
+        <label for="isbn">ISBN: </label>
+        <input type="text" name="isbn" class="field" required><br>
+
+        <!-- Check for errors -->
+        <p class="error error--hidden"></p>
+        <!-- Submit button -->
+        <input type="submit" value="Search" class="button">
+      </form>
+    </div>
+  </div>
+
+  <br><br>
+  <h1>Available Books: </h1><br>
+  {% for book in books %}
+    <div class="container">
+    <form action="/user/searchViaISBN" method="GET" name="search_form">
+        
+        <div class="formcontainer">
+
+        <div class="container">
+
+            <strong>Book Title: </strong><br> {{ book._id }}<br>
+            <strong>Author: </strong><br> {{ book.airportfinaldest }}<br>
+            <strong>ISBN: </strong><br> {{ book.date }}<br>
+            <strong>Publication Date: </strong><br> {{ book.airportoforigin }}<br>
+                
+        </div>
+
+    </form>
+    </div>
+    {% endfor %}
+  </center>
+{% endblock %}

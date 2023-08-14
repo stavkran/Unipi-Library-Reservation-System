@@ -4,6 +4,8 @@ import re
 from datetime import date
 from pymongo import MongoClient
 import json
+from datetime import datetime, timedelta
+from flask import Blueprint, request, render_template, redirect, url_for, session, flash
 
 #User blueprint
 user = fk.Blueprint("user", __name__, static_folder="static", template_folder="templates")
@@ -13,19 +15,34 @@ client = MongoClient("mongodb://mongodb:27017/")
 db = client["UnipiLibrary"]
 usersDb = db["users"]
 booksDb = db["books"]
-reservedDb = db["reservedbooks"]
+reservedbooksDb = db["reservedbooks"]
 
 # User's home page which also shows all the unreserved books.
 @user.route("/")
 @user.route("/userAvailableFlights", methods=["GET"])
 def userHomePage():
-    all_flights = booksDb.find({"ticketsleftnum": {"$gt": 0}})
-    return fk.render_template("availableFlights.html", flights = all_flights)
-    
-# Book a flight
+    # Get all books from the database
+    all_books = list(db.booksDb.find())
+
+    #Get all the reserved books from the database
+    reserved_books = list(db.reservedbooksDb.find())
+
+    # Create a set of reserved ISBNs for faster lookup
+    reserved_isbns = set(book["isbn"] for book in reserved_books)
+
+    # Create an empty list to hold unreserved books
+    unreserved_books = []
+
+    for book in all_books:
+         if book["isbn"] not in reserved_isbns:
+            unreserved_books.append(book)
+
+    return fk.render_template("userAvailableBooks.html", unreserved_books=unreserved_books)
+   
+# Reserve a book
 @user.route("/")
-@user.route("/bookFlight", methods=["GET","POST"])
-def bookFlight():
+@user.route("/reserveBook", methods=["GET","POST"])
+def reserveBook():
     if fk.request.method == "GET":
         # Get the user's information from the user JSON file
         with open("users.json", "r") as users_file:
@@ -35,135 +52,116 @@ def bookFlight():
         signed_in_user = next((user for user in users_data if user["email"] == fk.session["email"]), None)
         
         if signed_in_user:
-            return fk.render_template("bookFlight.html", user=signed_in_user)
+            return fk.render_template("userReserveBook.html", user=signed_in_user)
         else:
             fk.flash("User not found!")
-            return fk.redirect(fk.url_for("user.bookFlight"))
+            return fk.redirect(fk.url_for("user.reserveBook"))
     else:
         #request values
-        flightid = fk.request.form["flightid"]
+        isbn = fk.request.form["isbn"]  # Assuming the user provides the unique ISBN code
         firstname = fk.request.form["firstname"]
         surname = fk.request.form["surname"]
-        passportid = fk.request.form["passportid"]
-        dateofbirth = fk.request.form["dateofbirth"]
         email = fk.request.form["email"]
-        tickettype = fk.request.form["tickettype"]
+        mobile = fk.request.form["mobile"]
 
-        # bookedflights = {"email":fk.session["email"], "firstnamebooker": firstname, "surnamebooker": surname, "passportidbooker": paassportid, "dateofbirthbooker": dateofbirth, "emailbooker": email, "tickettypebooker": tickettype}
-        # bookedflightsDb.insert_one(bookedflights)
-        # fk.flash("Flight booked Successfully!")
-        # return fk.redirect(fk.url_for("user.userHomePage"))
+        # Check if the book with the given ISBN exists
+        matched_book = db.booksDb.find_one({"isbn": isbn})
 
-        with open("flights.json", "r") as flights_file:
-            flights_data = json.load(flights_file)
+        # for book in all_books:
+        #     if book["_id"] != bookid:
+        #         flash(f"The ")
 
-        # Find the flight based on the _id
-        matching_flights = [flight for flight in flights_data if flight["_id"] == flightid]
-        if matching_flights:
-            matched_flight = matching_flights[0]
-            booked_flight = {
-                "_id": matched_flight["_id"],
-                "airportoforigin": matched_flight["airportoforigin"],
-                "airportfinaldest": matched_flight["airportfinaldest"],
-                "date": matched_flight["date"],
+        if matched_book:
+             # Calculate the reservation expiration date (7 days from now)
+            reservation_duration = matched_book["reservationdays"]  # Number of days for the reservation
+            
+            # Calculate the reservation expiration date based on the reservation duration
+            reservation_expiration = datetime.now() + timedelta(days=reservation_duration)
+
+            reserved_book = {
+                "_id": matched_book["_id"],
+                "title": matched_book["title"],  # Replace with the appropriate field name
                 "firstname": firstname,
                 "surname": surname,
-                "passportid": passportid,
-                "dateofbirth": dateofbirth,
                 "email": email,
-                "tickettype": tickettype
+                "email": email,
+                "reservation_expiration": reservation_expiration.strftime("%Y-%m-%d")  # Format as "YYYY-MM-DD"
             }
 
-            with open("bookedflights.json", "r") as booked_flights_file:
-                    booked_flights = json.load(booked_flights_file)
-
-            booked_flights.append(booked_flight)
-
-            with open("bookedflights.json", "w") as booked_flights_file:
-                json.dump(booked_flights, booked_flights_file, indent=4)
-
-            matched_flight["ticketsleftnum"] -= 1
-            if tickettype == "economy":
-                matched_flight["econticketsleftnum"] -= 1
-            elif tickettype == "business":
-                matched_flight["busticketsleftnum"] -= 1
-
-            with open("flights.json", "w") as flights_file:
-                json.dump(flights_data, flights_file, indent=4)
-
-            fk.flash("Flight booked successfully!")
-            return fk.redirect(fk.url_for("user.userHomePage"))
+            # Insert the reserved book into the reservedbooksDb collection
+            db.reservedbooksDb.insert_one(reserved_book)
+             
+            # Return a success message or redirect to a success page
+            return fk.redirect(fk.url_for("user.reserveBook"))
+    
         else:
-            fk.flash("Flight not found!")
-            return fk.redirect(fk.url_for("user.userHomePage"))
-        
-# Search via Airport Of Origin and Airport Of Destination
+            # Book with the given ISBN doesn't exist
+            fk.flash(f"The book with the ISBN '{isbn}' doesn't exist. Please insert a different ISBN.")
+            return fk.redirect(fk.url_for("user.reserveBook"))
+
+
+# Search via Title
 @user.route("/search")
-@user.route("/searchViaOriginDest", methods=["GET", "POST"])
-def searchViaOriginDest():
+@user.route("/searchViaTitle", methods=["GET", "POST"])
+def searchViaTitle():
     if fk.request.method == "GET":
-        return fk.render_template("userSearchViaOriginDest.html")
+        return fk.render_template("userSearchViaTitle.html")
     else:
-        airportoforigin = fk.request.form["airportoforigin"]
-        airportfinaldest = fk.request.form["airportfinaldest"]
-        results = flightsDb.find({
-            "$and":[ 
-                {"airportoforigin": airportoforigin}, 
-                {"airportfinaldest": airportfinaldest},
-                {"ticketsleftnum": {"$gt": 0}} 
-            ]
-        })
-        if results is None:
-            fk.flash("No flights found.")
-            return fk.redirect(fk.url_for("user.searchViaOriginDest"))
+        title = fk.request.form["title"]
+        bookresults = db.booksDb.find({"title": title})
+        if bookresults:
+            reservedBook = db.reservedbooksDb.find_one({"title": title})
+
+            if reservedBook is None:
+                return fk.render_template("userSearchViaTitle.html", book=bookresults)
+        if bookresults is None:
+            fk.flash("No book registrations found in the system.")
+            return fk.redirect(fk.url_for("user.searchViaTitle"))
         else:
-            return fk.render_template("userSearchViaOriginDest.html", flights=results)
-        
-# Search via Airport Of Origin and Airport Of Destination and Date
+            return fk.render_template("userSearchViaTitle.html", book=bookresults)
+
+
+# Search via Author      
 @user.route("/search")
-@user.route("/searchViaOriginDestDate", methods=["GET", "POST"])
-def searchViaOriginDestDate():
+@user.route("/searchViaAuthor", methods=["GET", "POST"])
+def searchViaAuthor():
     if fk.request.method == "GET":
-        return fk.render_template("userSearchViaOriginDestDate.html")
+        return fk.render_template("userSearchViaAuthor.html")
     else:
-        airportoforigin = fk.request.form["airportoforigin"]
-        airportfinaldest = fk.request.form["airportfinaldest"]
-        date = fk.request.form["date"]
-        results = flightsDb.find({
-            "$and":[ 
-                {"airportoforigin": airportoforigin}, 
-                {"airportfinaldest": airportfinaldest},
-                {"date": date},
-                {"ticketsleftnum": {"$gt": 0}} 
-            ]
-        })
-        if results is None:
-            fk.flash("No flights found.")
-            return fk.redirect(fk.url_for("user.searchViaOriginDestDate"))
+        author = fk.request.form["author"]
+        bookresults = db.booksDb.find({"author": author})
+        if bookresults:
+            reservedBook = db.reservedbooksDb.find_one({"author": author})
+
+            if reservedBook is None:
+                return fk.render_template("userSearchViaAuthor.html", book=bookresults)
+        if bookresults is None:
+            fk.flash("No book registrations found in the system.")
+            return fk.redirect(fk.url_for("user.searchViaAuthor"))
         else:
-            return fk.render_template("userSearchViaOriginDestDate.html", flights=results)
+            return fk.render_template("userSearchViaAuthor.html", book=bookresults)
         
-# Search via Date
+
+# Search via ISBN      
 @user.route("/search")
-@user.route("/searchViaDate", methods=["GET", "POST"])
-def searchViaDate():
+@user.route("/searchViaISBN", methods=["GET", "POST"])
+def searchViaISBN():
     if fk.request.method == "GET":
-        return fk.render_template("userSearchViaDate.html")
+        return fk.render_template("userSearchViaISBN.html")
     else:
-        date = fk.request.form["date"]
-        # Make a variable to catch all reuslts similar to title in case of wrong spelling.
-        # like_airportoforigin = re.compile(f"[{airportoforigin}]")
-        results = flightsDb.find({
-            "$and":[ 
-                {"date": date},
-                {"ticketsleftnum": {"$gt": 0}} 
-            ]
-        })
-        if results is None:
-            fk.flash("No flights found.")
-            return fk.redirect(fk.url_for("user.searchViaDate"))
+        isbn = fk.request.form["isbn"]
+        bookresults = db.booksDb.find({"isbn": isbn})
+        if bookresults:
+            reservedBook = db.reservedbooksDb.find_one({"isbn": isbn})
+
+            if reservedBook is None:
+                return fk.render_template("userSearchViaISBN.html", book=bookresults)
+        if bookresults is None:
+            fk.flash("No book registrations found in the system.")
+            return fk.redirect(fk.url_for("user.searchViaISBN"))
         else:
-            return fk.render_template("userSearchViaDate.html", flights=results)
+            return fk.render_template("userSearchViaISBN.html", book=bookresults)
+
 
 # Unbook flight
 @user.route("/")

@@ -1,15 +1,17 @@
-{
-    "title": "Pride and Prejudice",
-    "author": "Jane Austen",
-    "isbn": "978-0-14-143951-8",
-    "user": {
+[
+    {
+      "title": "Pride and Prejudice",
+      "author": "Jane Austen",
+      "isbn": "978-0-14-143951-8",
+      "user": {
         "firstname": "Vincent",
         "surname": "Peters",
         "email": "vin@email.com",
         "mobile": "6923232323"
-    },
-    "reservation": {
+      },
+      "reservation": {
         "reservationdate": "2023-08-10",
         "returndate": "2023-08-24"
+      }
     }
-}
+]
