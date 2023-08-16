@@ -1,0 +1,49 @@
+{% extends "userBase.html" %}
+{% block title %}Reserve Book{% endblock title %}
+{% block content %}
+
+    <!-- Flashed messages -->
+    {% with messages = get_flashed_messages()%}
+        {% if messages %}
+        {%for msg in messages %}
+            <p>{{msg}}</p>
+        {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+
+    <!-- Reserve Book -->
+    <center>
+        <div class="card-wrapper">
+        <div class="card">
+            <br><br>
+            <h1>Reserve Book</h1>
+            <form action="/user/reserveBook" method="POST" name="reserveBookForm">
+                <!-- Book ISBN -->
+                <label for="isbn">Book ISBN: </label>
+                <input type="text" name="isbn" class="field" required><br>
+                
+                <!-- Firstname -->
+                <label for="firstname">Firstname: </label>
+                <input type="text" name="firstname" class="field" value="{{ user.firstname }}" readonly><br>
+                
+                <!-- Surname -->
+                <label for="surname">Surname: </label>
+                <input type="text" name="surname" class="field" value="{{ user.surname }}" readonly><br>
+                
+                <!-- Email -->
+                <label for="email">Email</label>
+                <input type="text" name="email" class="field" value="{{ user.email }}" readonly><br>
+
+                <!-- Mobile Number -->
+                <label for="mobile">Mobile Number: </label>
+                <input type="text" name="mobile" class="field" value="{{ user.mobile }}" readonly><br>
+
+                <!-- Submit button -->
+                <input type="submit" value="Create" class="button">
+            </form>
+        </div>
+        </div>
+    </center>
+
+{% endblock %}

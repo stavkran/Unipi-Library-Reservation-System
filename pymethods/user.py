@@ -19,7 +19,7 @@ reservedbooksDb = db["reservedbooks"]
 
 # User's home page which also shows all the unreserved books.
 @user.route("/")
-@user.route("/userAvailableFlights", methods=["GET"])
+@user.route("/userAvailableBooks", methods=["GET"])
 def userHomePage():
     # Get all books from the database
     all_books = list(db.booksDb.find())
@@ -34,11 +34,11 @@ def userHomePage():
     unreserved_books = []
 
     for book in all_books:
-         if book["isbn"] not in reserved_isbns:
+        if book["isbn"] not in reserved_isbns:
             unreserved_books.append(book)
 
     return fk.render_template("userAvailableBooks.html", unreserved_books=unreserved_books)
-   
+
 # Reserve a book
 @user.route("/")
 @user.route("/reserveBook", methods=["GET","POST"])
@@ -72,7 +72,7 @@ def reserveBook():
         #         flash(f"The ")
 
         if matched_book:
-             # Calculate the reservation expiration date (7 days from now)
+            # Calculate the reservation expiration date (7 days from now)
             reservation_duration = matched_book["reservationdays"]  # Number of days for the reservation
             
             # Calculate the reservation expiration date based on the reservation duration
@@ -84,13 +84,13 @@ def reserveBook():
                 "firstname": firstname,
                 "surname": surname,
                 "email": email,
-                "email": email,
+                "mobile": mobile,
                 "reservation_expiration": reservation_expiration.strftime("%Y-%m-%d")  # Format as "YYYY-MM-DD"
             }
 
             # Insert the reserved book into the reservedbooksDb collection
             db.reservedbooksDb.insert_one(reserved_book)
-             
+            
             # Return a success message or redirect to a success page
             return fk.redirect(fk.url_for("user.reserveBook"))
     
@@ -162,65 +162,27 @@ def searchViaISBN():
         else:
             return fk.render_template("userSearchViaISBN.html", book=bookresults)
 
-
-# Unbook flight
-@user.route("/")
-@user.route("/unbookFlight", methods=["GET","POST"])
-def deleteFlight():
+# Search via Date      
+@user.route("/search")
+@user.route("/searchViaDate", methods=["GET", "POST"])
+def searchViaAuthor():
     if fk.request.method == "GET":
-        with open("bookedflights.json", "r") as booked_flights_file:
-            booked_flights_data = json.load(booked_flights_file)
-
-        # Filter booked flights based on the user's email
-        user_booked_flights = [flight for flight in booked_flights_data if flight["email"] == fk.session["email"]]
-        
-        return fk.render_template("unbookFlight.html", bookedFlights=user_booked_flights)
+        return fk.render_template("userSearchViaDate.html")
     else:
-        flightid = fk.request.form["flightid"]
-        with open("bookedflights.json", "r") as booked_flights_file:
-            booked_flights_data = json.load(booked_flights_file)
-        
-        # Find the booked flight to unbook
-        flight_to_unbook = next((flight for flight in booked_flights_data if flight["_id"] == flightid), None)
-        if flight_to_unbook:
-            with open("bookedflights.json", "w") as booked_flights_file:
-                # Remove the flight from the booked flights data
-                booked_flights_data.remove(flight_to_unbook)
-                json.dump(booked_flights_data, booked_flights_file, indent=4)
-            
-            with open("flights.json", "r") as flights_file:
-                flights_data = json.load(flights_file)
+        author = fk.request.form["publicationdate"]
+        bookresults = db.booksDb.find({"publicationdate": publicationdate})
+        if bookresults:
+            reservedBook = db.reservedbooksDb.find_one({"publicationdate": publicationdate})
 
-            # Find the corresponding flight in the flights data
-            matching_flight = next((flight for flight in flights_data if flight["_id"] == flight_to_unbook["_id"]), None)
-            if matching_flight:
-                matching_flight["ticketsleftnum"] += 1
-                if flight_to_unbook["tickettype"] == "economy":
-                    matching_flight["econticketsleftnum"] += 1
-                elif flight_to_unbook["tickettype"] == "business":
-                    matching_flight["busticketsleftnum"] += 1
-                
-                with open("flights.json", "w") as flights_file:
-                    json.dump(flights_data, flights_file, indent=4)
-                
-                fk.flash("Flight successfully unbooked!")
-            else:
-                fk.flash("Flight not found!")
+            if reservedBook is None:
+                return fk.render_template("userSearchViaDate.html", book=bookresults)
+        if bookresults is None:
+            fk.flash("No book registrations found in the system.")
+            return fk.redirect(fk.url_for("user.searchViaDate"))
         else:
-            fk.flash("There is no flight with such ID.")
+            return fk.render_template("userSearchViaDate.html", book=bookresults)
         
-        return fk.redirect(fk.url_for("user.userHomePage"))
 
-#bookedFlight
-@user.route("/")
-@user.route("/bookedFlights", methods=["GET","POST"])
-def userHPage():
-    if fk.request.method == "GET":
-        allBookedFlights = bookedflightsDb.find({"email":fk.session["email"]})
-        return fk.render_template("userBookedFlights.html", userEmail = fk.session["email"], bookedflights = allBookedFlights)
-    else:
-        allBookedFlights = bookedflightsDb.find({"email":fk.session["email"]})
-        return fk.render_template("userBookedFlights.html", userEmail = fk.session["email"], bookedflights = allBookedFlights)
 
 # Delete account.
 @user.route("/")
