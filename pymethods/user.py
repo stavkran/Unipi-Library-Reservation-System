@@ -165,11 +165,11 @@ def searchViaISBN():
 # Search via Date      
 @user.route("/search")
 @user.route("/searchViaDate", methods=["GET", "POST"])
-def searchViaAuthor():
+def searchViaDate():
     if fk.request.method == "GET":
         return fk.render_template("userSearchViaDate.html")
     else:
-        author = fk.request.form["publicationdate"]
+        publicationdate = fk.request.form["publicationdate"]
         bookresults = db.booksDb.find({"publicationdate": publicationdate})
         if bookresults:
             reservedBook = db.reservedbooksDb.find_one({"publicationdate": publicationdate})
@@ -181,6 +181,52 @@ def searchViaAuthor():
             return fk.redirect(fk.url_for("user.searchViaDate"))
         else:
             return fk.render_template("userSearchViaDate.html", book=bookresults)
+
+# show book details (via ISBN)
+
+# unreserve book 
+@user.route("/")
+@user.route("/unreserveBook", methods=["GET","POST"])
+def unreserveBook():
+    if fk.request.method == "GET":
+        with open("reservedbooks.json", "r") as reserved_books_file:
+            reserved_books_data = json.load(reserved_books_file)
+
+        # Filter reserved books based on the user's email
+        user_reserved_books = [reservedbook for reservedbook in reserved_books_data if reservedbooksDb["email"] == fk.session["email"]]
+        
+        return fk.render_template("userUnreservedBook.html", reservedBooks=user_reserved_books)
+    else:
+        reservedBookid = fk.request.form["reservedBookid"]
+        with open("reservedbooks.json", "r") as reserved_books_file:
+            reserved_books_data = json.load(reserved_books_file)
+        
+        # Find the reserved book to cancel reservation
+        book_to_unreserve = next((book for book in reserved_books_data if book["_id"] == reservedBookid), None)
+        if book_to_unreserve:
+            with open("reservedbooks.json", "w") as reserved_books_file:
+                # Remove the book from the reserved books data
+                reserved_books_data.remove(book_to_unreserve)
+                json.dump(reserved_books_data, reserved_books_file, indent=4)
+            
+            with open("books.json", "r") as books_file:
+                books_data = json.load(books_file)
+
+            # Find the corresponding book in the books data
+            matching_book = next((book for book in books_data if book["isbn"] == book_to_unreserve["isbn"]), None)
+            if matching_book:
+                with open("flights.json", "w") as flights_file:
+                    json.dump(books_data, books_file, indent=4)
+                
+                fk.flash("Book reservation successfully canceled!")
+            else:
+                fk.flash("Book Reservation not found!")
+        else:
+            fk.flash("There is no book reservation with such ID.")
+        
+        return fk.redirect(fk.url_for("user.userHomePage"))
+
+
         
 
 

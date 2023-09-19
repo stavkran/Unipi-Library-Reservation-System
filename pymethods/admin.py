@@ -19,8 +19,8 @@ reservedbooksDb = db["reservedbooks"]
 @admin.route("/")
 @admin.route("/adminHome", methods=["GET"])
 def adminHome():
-    all_books = booksDb
-    return fk.render_template("adminHomepage.html", books = all_books)
+    all_books = list(booksDb.find({}))
+    return fk.render_template("adminHomePage.html", books = all_books)
 
 # Import Book
 @admin.route("/")
@@ -35,8 +35,9 @@ def importBook():
         publicationdate = fk.request.form["publicationdate"]
         isbn = fk.request.form["isbn"]
         summary = fk.request.form["summary"]
-        pagesnum = fk.request.form["pagesnum"]
-        reservationdays = fk.request.form["reservationdays"]
+        pagesnum = int(fk.request.form["pagesnum"])
+        reservationdays = int(fk.request.form["reservationdays"])
+        print(type(reservationdays))
         existing_book = booksDb.find_one({
             "isbn": isbn
         })
@@ -193,5 +194,5 @@ def showDetails():
 
         book_details.append(book_detail)
 
-    return fk.render_template("adminBookedDetails.html", book_details=book_details)
+    return fk.render_template("adminBookDetails.html", book_details=book_details)
 

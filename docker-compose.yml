@@ -8,14 +8,15 @@ services:
         - 27017:27017
         volumes:
         - ./data:/data/db
-    unipilirarysystem: 
+    unipilibrarysystem: 
       build: .
       restart: always
       command: python -u app.py
-      container_name: unipi_LirarySystem
+      container_name: unipi_LibrarySystem
       ports: 
         - "5000:5000"
       links:
         - mongodb
-      # volumes:
-      #   - .:/uniLibData
+      depends_on:
+        - mongodb
+    

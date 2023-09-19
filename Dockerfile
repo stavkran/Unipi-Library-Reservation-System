@@ -3,7 +3,6 @@ RUN apt update -y
 RUN apt upgrade -y
 RUN mkdir /unipiLibrary
 
-ADD . /unipiLibrary
 WORKDIR /unipiLibrary
 
 COPY requirements.txt .

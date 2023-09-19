@@ -1,0 +1,37 @@
+{% extends "userBase.html" %}
+{% block title %}Booked Flights{% endblock title %}
+{% block content %}
+<center>
+<!-- Flashed messages -->
+  {% with messages = get_flashed_messages()%}
+    {% if messages %}
+      {%for msg in messages %}
+          <p>{{msg}}</p>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+<!-- Show flights -->
+{% for reservedbook in reservedbooks %}
+<div class="card-wrapper">
+  <div class="card">
+    <br><br>
+    <h1>Your Reserved Books</h1>
+    <form action="/user/bookedFlights" method="POST" name="showBookedFlights_form">
+      <li class="list-group-item">
+        <p>
+            <strong>Flight ID:</strong> {{ bookedflight._id }}<br>
+            <strong>Airport Of Origin:</strong> {{ bookedflight.airportoforigin }}<br>
+            <strong>Airport of Destination:</strong> <br> {{ bookedflight.airportfinaldest }}<br>
+            <strong>Date:</strong> {{ bookedflight.date }}<br>
+            <strong>Ticket Type:</strong> {{ bookedflight.tickettype }} <br>
+        </p>
+      </li>
+      <!-- Check for errors -->
+      <p class="error error--hidden"></p>
+    </form>
+  </div>
+</div>
+  {% endfor %}
+</center>
+{% endblock %}

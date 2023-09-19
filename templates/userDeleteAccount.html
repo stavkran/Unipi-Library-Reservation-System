@@ -1,0 +1,32 @@
+{% extends "userBase.html" %}
+{% block title %}Delete User Account{% endblock %}
+{% block content %}
+  <!-- Flashed Message -->
+  {% with messages = get_flashed_messages()%}
+    {% if messages %}
+      {%for msg in messages %}
+          <p>{{msg}}</p>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Delete Account -->
+  <center>
+  <div class="card-wrapper">
+    <div class="card">
+      <br><br>
+      <h1>Delete Your Account</h1>
+      <form action="/user/deleteAccount" method="POST" name="editNote_form">
+        
+        <label for="email">Type your email to delete your Account: </label><br><br>
+        <input type="text" name="email" class="field" required>
+        <h6>Keep in mind that if you delete your account, all your reserved books will remail in the system.</h6><br>
+        <!-- Check for errors -->
+        <p class="error error--hidden"></p>
+        <!-- Submit button -->
+        <input type="submit" value="Delete" class="button">
+      </form>
+    </div>
+  </div>
+    </center>
+{% endblock %}
