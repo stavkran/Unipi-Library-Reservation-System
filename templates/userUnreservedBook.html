@@ -1,0 +1,46 @@
+{% extends "userBase.html" %}
+{% block title %}Unbook Flight{% endblock %}
+{% block content %}
+    <!-- Flashed Message -->
+    {% with messages = get_flashed_messages()%}
+    {% if messages %}
+        {%for msg in messages %}
+            <p>{{msg}}</p>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <!-- Unreserve Book -->
+    <center>
+    <div class="card-wrapper">
+    <div class="card">
+        <br><br>
+        <h1>Cancel Book Reservation</h1>
+        <form action="/user/unreserveBook" method="POST" name="unreserveBookForm">
+            <!-- Old Title -->
+            <label for="reservedbook">Reservation ID: </label>
+            <input type="text" name="reservedbook" class="field" required><br><br>
+            <!-- Check for errors -->
+            <p class="error error--hidden"></p>
+            <!-- Submit button -->
+            <input type="submit" value="Cancel Reservation" class="button"><br><br>
+
+            <!-- Show Reserved Books -->
+            <br><br>
+            <h2>Your Reserved Books:</h2><br>
+            
+            {% for reservedBook in reservedBooks %}
+            <li class="list-group-item">
+                <p>
+                <strong>Reservation ID: </strong> {{ reservedBook._id }}<br>
+                <strong>Title: </strong> <br> {{ reservedBook.title }}<br>
+                <strong>Author: </strong> {{ reservedBook.author }}<br>
+                <strong>ISBN: </strong> {{ reservedBook.isbn }} <br>
+                </p>
+            </li>
+            {% endfor %}
+        </form>
+    </div>
+    </div>
+    </center>
+{% endblock %}

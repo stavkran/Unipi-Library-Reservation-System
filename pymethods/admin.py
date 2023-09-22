@@ -5,6 +5,7 @@ from datetime import date
 from pymongo import MongoClient
 import json
 
+
 #Admin Blueprint
 admin = fk.Blueprint("admin", __name__, static_folder="static", template_folder="templates")
 
@@ -13,14 +14,14 @@ client = MongoClient("mongodb://mongodb:27017/")
 db = client["UnipiLibrary"]
 usersDb = db["users"]
 booksDb = db["books"]
-reservedDb = db["reservedbooks"]
+reservedbooksDb = db["reservedbooks"]
 
 #Admin Home Page
 @admin.route("/")
 @admin.route("/adminHome", methods=["GET"])
 def adminHome():
-    all_books = booksDb
-    return fk.render_template("adminHomepage.html", books = all_books)
+    all_books = list(booksDb.find({}))
+    return fk.render_template("adminHomePage.html", books = all_books)
 
 # Import Book
 @admin.route("/")
@@ -35,8 +36,9 @@ def importBook():
         publicationdate = fk.request.form["publicationdate"]
         isbn = fk.request.form["isbn"]
         summary = fk.request.form["summary"]
-        pagesnum = fk.request.form["pagesnum"]
-        reservationdays = fk.request.form["reservationdays"]
+        pagesnum = int(fk.request.form["pagesnum"])
+        reservationdays = int(fk.request.form["reservationdays"])
+        print(type(reservationdays))
         existing_book = booksDb.find_one({
             "isbn": isbn
         })
@@ -82,7 +84,7 @@ def deleteFlight():
         # Check if book registration exists.
         isbn = fk.request.form["isbn"]
         bookexists =booksDb.find_one({"isbn": isbn})
-        reservationexeists = reservedDb.find_one({"isbn": isbn})
+        reservationexeists = reservedbooksDb.find_one({"isbn": isbn})
 
         if (bookexists):
             # Check if the book is reserved by any user.
@@ -106,17 +108,14 @@ def searchViaTitle():
         return fk.render_template("adminSearchViaTitle.html")
     else:
         title = fk.request.form["title"]
-        bookresults = db.booksDb.find({"title": title})
-        if bookresults:
-            reservedBook = db.reservedDb.find_one({"title": title})
+        result = booksDb.count_documents({"title": title})
 
-            if reservedBook is None:
-                return fk.render_template("adminSearchViaTitle.html", book=bookresults)
-        if bookresults is None:
-            fk.flash("No book registrations found in the system.")
+        if result == 0:
+            fk.flash(f"There is no book with the title: {title}")
             return fk.redirect(fk.url_for("admin.searchViaTitle"))
         else:
-            return fk.render_template("adminSearchViaTitle.html", book=bookresults)
+            books = booksDb.find({"title": title})
+            return fk.render_template("adminSearchViaTitle.html", books=books, is_book_reserved=is_book_reserved)
 
 # Search via Author      
 @admin.route("/search")
@@ -126,17 +125,18 @@ def searchViaAuthor():
         return fk.render_template("adminSearchViaAuthor.html")
     else:
         author = fk.request.form["author"]
-        bookresults = db.booksDb.find({"author": author})
-        if bookresults:
-            reservedBook = db.reservedDb.find_one({"author": author})
+        result = booksDb.count_documents({"author": author})
 
-            if reservedBook is None:
-                return fk.render_template("adminSearchViaAuthor.html", book=bookresults)
-        if bookresults is None:
-            fk.flash("No book registrations found in the system.")
-            return fk.redirect(fk.url_for("admin.searchViaAuthor"))
+        if result == 0:
+            fk.flash(f"There is no book by the author: {author}")
+            return fk.redirect(fk.url_for("admin.searchViaTitle"))
         else:
-            return fk.render_template("adminSearchViaAuthor.html", book=bookresults)
+            books = booksDb.find({"author": author})
+            return fk.render_template("adminSearchViaAuthor.html", books=books, is_book_reserved=is_book_reserved)
+        
+def is_book_reserved(title):
+    reserved_book = reservedbooksDb.find_one({"title": title})
+    return reserved_book is not None
         
 # Search via ISBN      
 @admin.route("/search")
@@ -146,17 +146,31 @@ def searchViaISBN():
         return fk.render_template("adminSearchViaISBN.html")
     else:
         isbn = fk.request.form["isbn"]
-        bookresults = db.booksDb.find({"isbn": isbn})
-        if bookresults:
-            reservedBook = db.reservedDb.find_one({"isbn": isbn})
+        result = booksDb.count_documents({"isbn": isbn})
 
-            if reservedBook is None:
-                return fk.render_template("adminSearchViaISBN.html", book=bookresults)
-        if bookresults is None:
-            fk.flash("No book registrations found in the system.")
+        if result == 0:
+            fk.flash(f"There is no book with the isbn code: {isbn}")
             return fk.redirect(fk.url_for("admin.searchViaISBN"))
         else:
-            return fk.render_template("adminSearchViaISBN.html", book=bookresults)
+            books = booksDb.find({"isbn": isbn})
+            return fk.render_template("adminSearchViaISBN.html", books=books, is_book_reserved=is_book_reserved)
+        
+
+@admin.route("/search")
+@admin.route("/searchViaDate", methods=["GET", "POST"])
+def searchViaDate():
+    if fk.request.method == "GET":
+        return fk.render_template("adminSearchViaDate.html")
+    else:
+        publicationdate = fk.request.form["publicationdate"]
+        result = booksDb.count_documents({"publicationdate": publicationdate})
+
+        if result == 0:
+            fk.flash(f"There is no book published on that date: {publicationdate}")
+            return fk.redirect(fk.url_for("admin.searchViaDate"))
+        else:
+            books = booksDb.find({"publicationdate": publicationdate})
+            return fk.render_template("adminSearchViaDate.html", books=books, is_book_reserved=is_book_reserved)
 
 #Show all book details
 @admin.route("/")
@@ -181,7 +195,7 @@ def showDetails():
         }
     
         # Check if the book is reserved
-        reserved_book = db.reservedDb.find_one({"title": book["title"]})
+        reserved_book = db.reservedbooksDb.find_one({"title": book["title"]})
         if reserved_book:
             user = reserved_book["user"]
             book_detail["reserved_by"] = {
@@ -193,5 +207,5 @@ def showDetails():
 
         book_details.append(book_detail)
 
-    return fk.render_template("adminBookedDetails.html", book_details=book_details)
+    return fk.render_template("adminBookDetails.html", book_details=book_details)
 

@@ -13,11 +13,10 @@ client = MongoClient("mongodb://mongodb:27017/")
 db = client["UnipiLibrary"]
 usersDb = db["users"]
 booksDb = db["books"]
-reservedDb = db["reservedbooks"]
+reservedbooksDb = db["reservedbooks"]
 
 app = Flask(__name__)
-app.secret_key = "UnipiLibrary"
-
+app.secret_key = "UnipiLibrarySecretKey"
 
 #Blueprints
 app.register_blueprint(user, url_prefix="/user")
@@ -60,6 +59,6 @@ if __name__ == "__main__":
     if not "UnipiLibrary" in db.list_collection_names():
         insert_json("books.json", booksDb)
         insert_json("users.json", usersDb)
-        insert_json("reservedbooks.json", reservedDb)
+        insert_json("reservedbooks.json", reservedbooksDb)
 
     app.run(debug=True, host='0.0.0.0', port=5000)

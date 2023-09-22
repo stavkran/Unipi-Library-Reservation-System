@@ -1,0 +1,45 @@
+{% extends "userBase.html" %}
+{% block title %}Your Reservations{% endblock title %}
+{% block content %}
+    <!-- Flashed Messages -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for msg in messages %}
+                <p>{{ msg }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <!-- User's Reservations -->
+    <h1>Your Reservations</h1>
+    <table class="table table-striped">
+        <thead style="color: #a8b2d1;">
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>ISBN</th>
+                <th>Reservation Date</th>
+                <th>Return Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reservation in user_reservations %}
+                <tr>
+                    <td>{{ reservation.title }}</td>
+                    <td>{{ reservation['author'] }}</td>
+                    <td>{{ reservation['isbn'] }}</td>
+                    <td>{{ reservation['reservation']['reservationdate'] }}</td>
+                    <td>{{ reservation['reservation']['returndate'] }}</td>
+                </tr>
+                <!-- {% if is_book_return_soon(reservation['reservation']['returndate']) %}
+                    <tr>
+                        <td colspan="5" style="font-weight: bolder; color: rgb(194, 0, 0);">
+                            The book with the title '{{ reservation['title'] }}' you've reserved needs to be returned soon.
+                            If you don't return it by {{ reservation['reservation']['returndate'] }}, a fine will be charged.
+                        </td>
+                    </tr>
+                {% endif %} -->
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

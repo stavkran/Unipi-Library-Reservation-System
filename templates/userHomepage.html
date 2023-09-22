@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lending Library | UniPi</title>
+
+    <link rel="stylesheet" href="/static/colourvar.css">
+    <link rel="stylesheet" href="/static/base.css">
+    <link rel="stylesheet" href="/static/homepage.css">
+</head>
+<body>
+    {% extends "userBase.html" %}
+    {% block title %}Search Βοοκ via Title{% endblock title %}
+    {% block content %}
+    <!-- Flashed Messages -->
+    {% with messages = get_flashed_messages()%}
+        {% if messages %}
+        {%for msg in messages %}
+            <p>{{msg}}</p>
+        {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+
+    <!-- Search -->
+    <center>
+        <div id="typewriter-container">
+            <div class="welcome-text" id="typewriter-text"></div>
+        </div>
+    </center>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+        const texts = ["Hey User!", " Welcome to the Library Management System of UniPi."];
+        const delay = 50; // Delay between each character (in milliseconds)
+        const refreshInterval = 5000; // Refresh interval in milliseconds (e.g., 5000ms = 5 seconds)
+        const textElement = document.getElementById("typewriter-text");
+        let textIndex = 0;
+        let charIndex = 0;
+
+        function typeWriter() {
+            if (charIndex < texts[textIndex].length) {
+                textElement.innerHTML += texts[textIndex].charAt(charIndex);
+                charIndex++;
+                setTimeout(typeWriter, delay);
+            } else {
+                setTimeout(clearText, refreshInterval);
+            }
+        }
+
+        function clearText() {
+            textElement.innerHTML = "";
+            charIndex = 0;
+            textIndex = (textIndex + 1) % texts.length; 
+            setTimeout(typeWriter, delay);
+        }
+
+        typeWriter();
+        });
+    </script>
+    {% endblock %}
+
+</body>
+</html>

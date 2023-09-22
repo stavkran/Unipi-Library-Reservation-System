@@ -15,7 +15,7 @@ body, .card {
 }
 
 a.navbar-brand {
-    color: var(--green-bright);
+    color: var(--marron);
 }
 
 a.navbar-brand:hover {
@@ -35,7 +35,7 @@ a.navbar-item {
 }
 
 a.navbar-item:hover {
-    color: var(--green-tint);
+    color: var(--marron);
 }
 
 .navbar {
@@ -51,11 +51,11 @@ h3 {
 }
 
 h1, h2 {
-    color: var(--green-bright);
+    color: var(--marron);
 }
 
 button, .btn, .button {
-    background-color: var(--green-bright);
+    background-color: var(--marron);
     color: var(--navy);
     border: 1px solid var(--navy);
 }
