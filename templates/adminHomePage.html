@@ -1,44 +1,65 @@
-{% extends "adminBase.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lending Library Admin | UniPi</title>
 
-{% block title %}UniPi Lending Library{% endblock title %}
-{% block content %}
+    <link rel="stylesheet" href="/static/colourvar.css">
+    <link rel="stylesheet" href="/static/base.css">
+    <link rel="stylesheet" href="/static/homepage.css">
+</head>
+<body>
+    {% extends "adminBase.html" %}
+    {% block title %}Search Βοοκ via Title{% endblock title %}
+    {% block content %}
+    <!-- Flashed Messages -->
+    {% with messages = get_flashed_messages()%}
+        {% if messages %}
+        {%for msg in messages %}
+            <p>{{msg}}</p>
+        {% endfor %}
+        {% endif %}
+    {% endwith %}
 
-<center>
-    <h2>All Books on the system:</h2>
 
-<!-- Flashed messages -->
-  {% with messages = get_flashed_messages()%}
-    {% if messages %}
-      {%for msg in messages %}
-          <p>{{msg}}</p>
-      {% endfor %}
-    {% endif %}
-  {% endwith %}
+    <!-- Search -->
+    <center>
+        <div id="typewriter-container">
+            <div class="welcome-text" id="typewriter-text"></div>
+        </div>
+    </center>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+        const texts = ["Hey Admin!", " Good to see you again!"];
+        const delay = 50; // Delay between each character (in milliseconds)
+        const refreshInterval = 5000; // Refresh interval in milliseconds (e.g., 5000ms = 5 seconds)
+        const textElement = document.getElementById("typewriter-text");
+        let textIndex = 0;
+        let charIndex = 0;
 
-<!-- Show all books -->
+        function typeWriter() {
+            if (charIndex < texts[textIndex].length) {
+                textElement.innerHTML += texts[textIndex].charAt(charIndex);
+                charIndex++;
+                setTimeout(typeWriter, delay);
+            } else {
+                setTimeout(clearText, refreshInterval);
+            }
+        }
 
-{% for book in books %}
-<div class="card-wrapper">
-  <div class="card">
-    <h1 class="center"></h1>
-    <form action="/admin/adminHome" method="POST" name="adminHomeform">
-      <li class="list-group-item">
-        <p>
-          <strong>Title:</strong> {{ book.title }}<br>
-          <strong>Author:</strong> {{ book.author }}<br>
-          <strong>Publication Date: </strong> <br> {{ book.publicationdate }}<br>
-          <strong>ISBN:</strong> {{ book.isbn }}<br>
-          <strong>Summary:</strong> {{ book.summary }} <br>
-          <strong>Page Number:</strong> {{ book.pagesnum }} <br>
-          <strong>Reservation Days:</strong> {{ book.reservationdays }} <br>
-        </p>
-      </li>
-      <!-- Check for errors -->
-      <p class="error error--hidden"></p>
-    </form>
-  </div>
-</div>
-{% endfor %}
-</center>
-{% endblock %}
+        function clearText() {
+            textElement.innerHTML = "";
+            charIndex = 0;
+            textIndex = (textIndex + 1) % texts.length; 
+            setTimeout(typeWriter, delay);
+        }
+
+        typeWriter();
+        });
+    </script>
+    {% endblock %}
+
+</body>
+</html>

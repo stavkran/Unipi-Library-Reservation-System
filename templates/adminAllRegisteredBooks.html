@@ -1,0 +1,27 @@
+<!-- adminSeeAllBooks.html -->
+{% extends "adminBase.html" %}
+{% block content %}
+<h1>All Registered Books</h1>
+<table class="table table-striped">
+    <thead style="color: #a8b2d1; font-weight: bold;">
+        <tr>
+            <th>ISBN</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for book in books %}
+            <tr style="color: #ccd6f6;">
+                <td>{{ book.isbn }}</td>
+                <td>{{ book.title }}</td>
+                <td>{{ book.author }}</td>
+                <td>
+                    <a href="{{ url_for('admin.viewBookDetails', isbn=book.isbn) }}" class="btn btn-primary">See Details</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock content %}
