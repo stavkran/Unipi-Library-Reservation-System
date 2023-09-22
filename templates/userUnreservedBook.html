@@ -12,35 +12,21 @@
 
     <!-- Unreserve Book -->
     <center>
-    <div class="card-wrapper">
-    <div class="card">
-        <br><br>
-        <h1>Cancel Book Reservation</h1>
-        <form action="/user/unreserveBook" method="POST" name="unreserveBookForm">
-            <!-- Old Title -->
-            <label for="reservedbook">Reservation ID: </label>
-            <input type="text" name="reservedbook" class="field" required><br><br>
-            <!-- Check for errors -->
-            <p class="error error--hidden"></p>
-            <!-- Submit button -->
-            <input type="submit" value="Cancel Reservation" class="button"><br><br>
-
-            <!-- Show Reserved Books -->
+        <div class="card-wrapper">
+        <div class="card">
             <br><br>
-            <h2>Your Reserved Books:</h2><br>
+            <h1>Cancel Book Reservation</h1>
+            <form action="/user/unreserveBook" method="POST" name="unreserveBookForm">
+                <!-- Old Title -->
+                <label for="reservedbook">Reservation ID: </label>
+                <input type="text" name="reservedbook" class="field" required><br><br>
+                <!-- Check for errors -->
+                <p class="error error--hidden"></p>
+                <!-- Submit button -->
+                <input type="submit" value="Cancel Reservation" class="button"><br><br>
             
-            {% for reservedBook in reservedBooks %}
-            <li class="list-group-item">
-                <p>
-                <strong>Reservation ID: </strong> {{ reservedBook._id }}<br>
-                <strong>Title: </strong> <br> {{ reservedBook.title }}<br>
-                <strong>Author: </strong> {{ reservedBook.author }}<br>
-                <strong>ISBN: </strong> {{ reservedBook.isbn }} <br>
-                </p>
-            </li>
-            {% endfor %}
-        </form>
-    </div>
-    </div>
+            </form>
+        </div>
+        </div>
     </center>
 {% endblock %}
