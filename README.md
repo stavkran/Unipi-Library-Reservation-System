@@ -89,6 +89,7 @@ sudo docker-compose up --build
 <img src="./unipiLibraryimgs/signUpNewUserPage.png" width="512">
 
 Αν προσπαθήσει να κάνει εγγραφή με μέιλ που ήδη υπάρχει στο σύστημα του τότε θα εμφανιστεί το εξής μήνυμα:
+
 <img src="./unipiLibraryimgs/flashmsgAlreadyRegisteredUser.png" width="512">
 
 
