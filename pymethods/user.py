@@ -6,6 +6,8 @@ from pymongo import MongoClient
 import json
 from datetime import datetime, timedelta
 from flask import Blueprint, request, render_template, redirect, url_for, session, flash
+from itertools import chain
+from datetime import datetime, timedelta
 
 #User blueprint
 user = fk.Blueprint("user", __name__, static_folder="static", template_folder="templates")
@@ -17,88 +19,132 @@ usersDb = db["users"]
 booksDb = db["books"]
 reservedbooksDb = db["reservedbooks"]
 
+@user.route("/")
+@user.route("/userHomePage", methods=["GET"])
+def userHomePage():
+    if fk.request.method == "GET":
+        return fk.render_template("userHomepage.html")
+    else:
+        return fk.redirect(fk.url_for("user.userHomePage"))
+
 # User's home page which also shows all the unreserved books.
 @user.route("/")
 @user.route("/userAvailableBooks", methods=["GET"])
-def userHomePage():
+def userAvailableBooks():
     # Get all books from the database
-    all_books = list(db.booksDb.find())
+    all_books = list(booksDb.find())
 
-    #Get all the reserved books from the database
-    reserved_books = list(db.reservedbooksDb.find())
+    # Get all the reserved books from the database
+    reserved_books = list(reservedbooksDb.find())
 
     # Create a set of reserved ISBNs for faster lookup
     reserved_isbns = set(book["isbn"] for book in reserved_books)
 
-    # Create an empty list to hold unreserved books
-    unreserved_books = []
+    # Create an empty list to hold available books
+    available_books = []
 
     for book in all_books:
         if book["isbn"] not in reserved_isbns:
-            unreserved_books.append(book)
+            available_books.append(book)
 
-    return fk.render_template("userAvailableBooks.html", unreserved_books=unreserved_books)
+    return render_template("userAvailableBooks.html", available_books=available_books)
 
 # Reserve a book
 @user.route("/")
 @user.route("/reserveBook", methods=["GET","POST"])
 def reserveBook():
     if fk.request.method == "GET":
-        # Get the user's information from the user JSON file
-        with open("users.json", "r") as users_file:
-            users_data = json.load(users_file)
-        
-        # Find the user based on their email (assuming email is used as a unique identifier)
-        signed_in_user = next((user for user in users_data if user["email"] == fk.session["email"]), None)
-        
-        if signed_in_user:
-            return fk.render_template("userReserveBook.html", user=signed_in_user)
+        if session.get("email"):
+            user = usersDb.find_one({"email": session["email"]})
+
+            if user:
+                return fk.render_template("userReserveBook.html", user=user)
+            else:
+                flash("User not found.", "error")
+                return redirect(url_for("auth.signIn"))
         else:
-            fk.flash("User not found!")
-            return fk.redirect(fk.url_for("user.reserveBook"))
+            flash("You must be logged in to reserve a book.", "error")
+            return redirect(url_for("auth.signIn"))
     else:
-        #request values
-        isbn = fk.request.form["isbn"]  # Assuming the user provides the unique ISBN code
-        firstname = fk.request.form["firstname"]
-        surname = fk.request.form["surname"]
-        email = fk.request.form["email"]
-        mobile = fk.request.form["mobile"]
+        if not session.get("email"):
+            flash("You must be logged in to reserve a book.", "error")
+            return redirect(url_for("auth.signIn"))
+
+        # Get the ISBN of the book to be reserved from the form
+        isbn = request.form.get("isbn")
 
         # Check if the book with the given ISBN exists
-        matched_book = db.booksDb.find_one({"isbn": isbn})
+        book = booksDb.find_one({"isbn": isbn})
 
-        # for book in all_books:
-        #     if book["_id"] != bookid:
-        #         flash(f"The ")
+        if not book:
+            flash("The book with the provided ISBN does not exist.", "error")
+            return redirect(request.referrer)
 
-        if matched_book:
-            # Calculate the reservation expiration date (7 days from now)
-            reservation_duration = matched_book["reservationdays"]  # Number of days for the reservation
-            
-            # Calculate the reservation expiration date based on the reservation duration
-            reservation_expiration = datetime.now() + timedelta(days=reservation_duration)
+        # Check if the book is already reserved
+        existing_reservation = reservedbooksDb.find_one({"isbn": isbn})
 
-            reserved_book = {
-                "_id": matched_book["_id"],
-                "title": matched_book["title"],  # Replace with the appropriate field name
-                "firstname": firstname,
-                "surname": surname,
-                "email": email,
-                "mobile": mobile,
-                "reservation_expiration": reservation_expiration.strftime("%Y-%m-%d")  # Format as "YYYY-MM-DD"
-            }
+        if existing_reservation:
+            flash("This book is already reserved by another user.", "error")
+            return redirect(request.referrer)
 
-            # Insert the reserved book into the reservedbooksDb collection
-            db.reservedbooksDb.insert_one(reserved_book)
-            
-            # Return a success message or redirect to a success page
-            return fk.redirect(fk.url_for("user.reserveBook"))
+        # Calculate the reservation end date based on the 'reservationdays' field
+        reservation_days = book.get("reservationdays", 14)  # Default to 14 days if 'reservationdays' is not specified
+        reservation_end_date = datetime.now() + timedelta(days=reservation_days)
+
+        # Create a reservation document and save it to the 'reservedbooks' collection
+        reservation = {
+            "title": book["title"],
+            "author": book["author"],
+            "isbn": book["isbn"],
+            "user_email": session["email"],  # Get the signed-in user's email
+            "reservationdate": datetime.now(),
+            "returndate": reservation_end_date  # Set the return date based on reservation days
+        }
+        reservedbooksDb.insert_one(reservation)
+
+        flash(f"The book '{book['title']}' has been successfully reserved.", "success")
+
+        # Check if the reservation date is approaching the return date
+        today = datetime.now()
+        notification_threshold = timedelta(days=reservation_days - 1)  # Notify 1 day before the return date
+        if reservation_end_date - today <= notification_threshold:
+            flash(f"The book with the title '{book['title']}' you've reserved needs to be returned soon. "
+                f"If you don't return it by {reservation_end_date.strftime('%Y-%m-%d')}, a fine will be charged.", "warning")
+
+        return redirect(request.referrer)
     
-        else:
-            # Book with the given ISBN doesn't exist
-            fk.flash(f"The book with the ISBN '{isbn}' doesn't exist. Please insert a different ISBN.")
-            return fk.redirect(fk.url_for("user.reserveBook"))
+# See Your Reservation
+@user.route("/")
+@user.route("/userReservations", methods=["GET"])
+def userReservations():
+    if not session.get("email"):
+        flash("You must be logged in to view your reservations.", "error")
+        return redirect(url_for("auth.signIn"))
 
+    # Get the user's email
+    user_email = session["email"]
+
+    # Find the user's reservations
+    # user_reservations = list(reservedbooksDb.find({"user.email": user_email}))
+
+    # print(user_reservations) 
+    users_reservations = list(reservedbooksDb.find({}))
+    print(users_reservations)
+
+    user_reservations = list(reservedbooksDb.find({"user.user_email": user_email}))
+
+    print(user_reservations)
+
+    return render_template("userReservations.html", user_reservations=user_reservations)
+    
+# See All Registered Books
+@user.route("/search")
+@user.route("/userSeeAllBooks", methods=["GET"])
+def userSeeAllBooks():
+    # Get all books from the database
+    books = list(booksDb.find())
+
+    return render_template("userSeeAllBooks.html", books=books, is_book_reserved=is_book_reserved)
 
 # Search via Title
 @user.route("/search")
@@ -107,18 +153,15 @@ def searchViaTitle():
     if fk.request.method == "GET":
         return fk.render_template("userSearchViaTitle.html")
     else:
-        title = fk.request.form["title"]
-        bookresults = db.booksDb.find({"title": title})
-        if bookresults:
-            reservedBook = db.reservedbooksDb.find_one({"title": title})
+        title = request.form["title"]
+        result = booksDb.count_documents({"title": title})
 
-            if reservedBook is None:
-                return fk.render_template("userSearchViaTitle.html", book=bookresults)
-        if bookresults is None:
-            fk.flash("No book registrations found in the system.")
-            return fk.redirect(fk.url_for("user.searchViaTitle"))
+        if result == 0:
+            flash(f"There is no book with the title: {title}")
+            return redirect(url_for("user.searchViaTitle"))
         else:
-            return fk.render_template("userSearchViaTitle.html", book=bookresults)
+            books = booksDb.find({"title": title})
+            return render_template("userSearchViaTitle.html", books=books, is_book_reserved=is_book_reserved)
 
 
 # Search via Author      
@@ -129,17 +172,18 @@ def searchViaAuthor():
         return fk.render_template("userSearchViaAuthor.html")
     else:
         author = fk.request.form["author"]
-        bookresults = db.booksDb.find({"author": author})
-        if bookresults:
-            reservedBook = db.reservedbooksDb.find_one({"author": author})
+        result = booksDb.count_documents({"author": author})
 
-            if reservedBook is None:
-                return fk.render_template("userSearchViaAuthor.html", book=bookresults)
-        if bookresults is None:
-            fk.flash("No book registrations found in the system.")
+        if result == 0:
+            fk.flash(f"There is no book by the author: {author}")
             return fk.redirect(fk.url_for("user.searchViaAuthor"))
         else:
-            return fk.render_template("userSearchViaAuthor.html", book=bookresults)
+            books = booksDb.find({"author": author})
+            return fk.render_template("userSearchViaAuthor.html", books=books, is_book_reserved=is_book_reserved)
+        
+def is_book_reserved(title):
+    reserved_book = reservedbooksDb.find_one({"title": title})
+    return reserved_book is not None
         
 
 # Search via ISBN      
@@ -150,17 +194,15 @@ def searchViaISBN():
         return fk.render_template("userSearchViaISBN.html")
     else:
         isbn = fk.request.form["isbn"]
-        bookresults = db.booksDb.find({"isbn": isbn})
-        if bookresults:
-            reservedBook = db.reservedbooksDb.find_one({"isbn": isbn})
+        result = booksDb.count_documents({"isbn": isbn})
 
-            if reservedBook is None:
-                return fk.render_template("userSearchViaISBN.html", book=bookresults)
-        if bookresults is None:
-            fk.flash("No book registrations found in the system.")
+        if result == 0:
+            fk.flash(f"There is no book with the isbn code: {isbn}")
             return fk.redirect(fk.url_for("user.searchViaISBN"))
         else:
-            return fk.render_template("userSearchViaISBN.html", book=bookresults)
+            books = booksDb.find({"isbn": isbn})
+            return fk.render_template("userSearchViaISBN.html", books=books, is_book_reserved=is_book_reserved)
+        
 
 # Search via Date      
 @user.route("/search")
@@ -170,17 +212,14 @@ def searchViaDate():
         return fk.render_template("userSearchViaDate.html")
     else:
         publicationdate = fk.request.form["publicationdate"]
-        bookresults = db.booksDb.find({"publicationdate": publicationdate})
-        if bookresults:
-            reservedBook = db.reservedbooksDb.find_one({"publicationdate": publicationdate})
+        result = booksDb.count_documents({"publicationdate": publicationdate})
 
-            if reservedBook is None:
-                return fk.render_template("userSearchViaDate.html", book=bookresults)
-        if bookresults is None:
-            fk.flash("No book registrations found in the system.")
+        if result == 0:
+            fk.flash(f"There is no book published on that date: {publicationdate}")
             return fk.redirect(fk.url_for("user.searchViaDate"))
         else:
-            return fk.render_template("userSearchViaDate.html", book=bookresults)
+            books = booksDb.find({"publicationdate": publicationdate})
+            return fk.render_template("userSearchViaDate.html", books=books, is_book_reserved=is_book_reserved)
 
 # show book details (via ISBN)
 

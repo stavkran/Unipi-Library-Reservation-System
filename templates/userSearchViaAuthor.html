@@ -37,11 +37,15 @@
         <div class="formcontainer">
 
         <div class="container">
-
+          <h3 style="padding-top: 8px;">Book ID: {{ book._id }}</h3>
           <strong>Book Title: </strong><br> {{ book.title }}<br>
           <strong>Author: </strong><br> {{ book.author }}<br>
           <strong>ISBN: </strong><br> {{ book.isbn }}<br>
           <strong>Publication Date: </strong><br> {{ book.publicationdate }}<br>
+
+          {% if is_book_reserved(book.title) %}
+            <p style="font-weight: bolder; color: rgb(194, 0, 0);">The book with the title {{ book.title }} is not currently available. Reserved by another student.</p>
+          {% endif %}
             
         </div>
 

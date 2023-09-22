@@ -1,0 +1,7 @@
+.welcome-text {
+    padding-top: 100px;
+    font-size: 3em;
+    text-align: center;
+    font-family: "Courier New", Courier, monospace;
+    color: var(--marron);
+}

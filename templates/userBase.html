@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Airlines</title>
+    <title>Lending Library | UniPi</title>
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -20,21 +20,21 @@
     <div class="navbar" id="navbar">
         <nav class="navbar navbar-expand-lg">
             <div class="container-fluid">
-              <a class="navbar-brand" href="/user/userAvailableBooks">Lending Library | UniPi</a>
+              <img src="/static/images/UNIPI_(logo).png" width="60px" style="margin-right: 10px;">
+              <a class="navbar-brand" href="/user/userHomePage">Lending Library | UniPi</a>
               <button class="navbar-toggler" type="button" data-coreui-toggle="collapse" data-coreui-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
               </button>
               <div class="collapse navbar-collapse" id="navbarNavDropdown">
                 <ul class="navbar-nav">
                   <li class="nav-item">
-                    <a class="nav-link" href="/user/reserveBook">Reserve Book</a>
+                    <a class="nav-link" href="/user/reserveBook">Reserve a Book</a>
                   </li>
-                  <!-- <li class="nav-item">
-                    <a class="nav-link" href="/user/unbookFlight">Cancel Flight</a>
+                  <li>
+                    <a class="nav-link" href="/user/userReservations">Your Reserved Books</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="/user/bookedFlights">See Booked Flights</a>
-                  </li> -->
+                    <a class="nav-link" href="/user/unreserveBook">Make a Return</a>
                   <li class="nav-item">
                     <a class="nav-link" href="/user/deleteAccount">Delete Account</a>
                   </li>
@@ -47,7 +47,11 @@
                       <a class="dropdown-item" href="/user/searchViaAuthor">Search via |Author|</a>
                       <a class="dropdown-item" href="/user/searchViaISBN">Search via |ISBN|</a>
                       <a class="dropdown-item" href="/user/searchViaDate">Search via |Publication Date|</a>
+                      <a class="dropdown-item" href="/user/userSeeAllBooks">See all Registered Books</a>
                     </div>
+                  </li>
+                  <li>
+                    <a class="nav-link" href="/user/userAvailableBooks">See all Available Books</a>
                   </li>
                 </ul>
 

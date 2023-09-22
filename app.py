@@ -8,14 +8,28 @@ from pymethods.user import user
 from pymethods.auth import auth
 from pymethods.admin import admin
 
-#insert collection to db
+#Connect to mongodb
+client = MongoClient("mongodb://mongodb:27017/")
+db = client["UnipiLibrary"]
+usersDb = db["users"]
+booksDb = db["books"]
+reservedbooksDb = db["reservedbooks"]
+
+app = Flask(__name__)
+app.secret_key = "UnipiLibrarySecretKey"
+
+#Blueprints
+app.register_blueprint(user, url_prefix="/user")
+app.register_blueprint(auth, url_prefix="/auth")
+app.register_blueprint(admin, url_prefix="/admin")
+
 def insert(collection, document):
     match = collection.find_one(document)
 
     if not match:
         collection.insert_one(document)
 
-#Insert json to collection
+
 def insert_json(path, collection):
     data = None
 
@@ -29,24 +43,6 @@ def insert_json(path, collection):
     for document in data:
         insert(collection, document)
 
-
-#Connect to mongodb
-client = MongoClient("mongodb://mongodb:27017/")
-db = client["UnipiLibrary"]
-usersDb = db["users"]
-booksDb = db["books"]
-reservedbooksDb = db["reservedbooks"]
-
-app = Flask(__name__)
-app.secret_key = "UnipiLibrarySecretKey"
-
-
-#Blueprints
-app.register_blueprint(user, url_prefix="/user")
-app.register_blueprint(auth, url_prefix="/auth")
-app.register_blueprint(admin, url_prefix="/admin")
-
-
 # Home.
 @app.route("/home", methods=["GET"])
 def index():
@@ -56,7 +52,7 @@ def index():
 @app.route("/")
 @app.route("/signIn")
 def goToSignIn():
-    return redirect(fk.url_for("auth.signIn"))
+    return fk.redirect(fk.url_for("auth.signIn"))
 
 
 if __name__ == "__main__":

@@ -15,7 +15,7 @@
   <div class="card-wrapper">
     <div class="card">
       <h1 class="center">Search Book via Title</h1>
-      <form action="/admin/searchViaTitle" method="POST" name="searchform">
+      <form action="/user/searchViaTitle" method="POST" name="searchform">
         <!-- Title -->
         <label for="title">Title: </label>
         <input type="text" name="title" class="field" required><br>
@@ -38,10 +38,15 @@
 
         <div class="container">
 
+          <h3 style="padding-top: 8px;">Book ID: {{ book._id }}</h3>
           <strong>Book Title: </strong><br> {{ book.title }}<br>
           <strong>Author: </strong><br> {{ book.author }}<br>
           <strong>ISBN: </strong><br> {{ book.isbn }}<br>
           <strong>Publication Date: </strong><br> {{ book.publicationdate }}<br>
+              
+          {% if is_book_reserved(book.title) %}
+            <p style="font-weight: bolder; color: rgb(194, 0, 0);">The book with the title {{ book.title }} is not currently available. Reserved by another student.</p>
+          {% endif %}
               
         </div>
 
