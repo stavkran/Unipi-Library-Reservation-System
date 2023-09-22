@@ -46,13 +46,17 @@ reservedbooks:
 
 user:
 
-| User                                   |
-|----------------------------------------|
 | firstname | surname | email   | mobile | 
 |-----------|---- ----|---------|--------|
 | string    | string  | string  | string |
+
+reservation:
+
+| reservationdate | returndate | 
+|-----------------|------------|
+| date            | date       | 
  
- *Κατα την εκτέλεση δημιουργείται ο λογαριασμός ενός διαχειριστή με στοιχεία firstname: Admin, surname: User, email: admin@email.com, password: admin, dateofbirth: 2001-07-13, countryoforigin: Greece, passportid: e19074 και category: admin. Επίσης δημιουργείτε ο λογαριασμός ενός απλού χρήστη με στοιχεία firstname: Vincent, surname: Peters, email: vin@email.com, password: 12345, dateofbirth: 2000-04-27, countryoforigin: Denmark, passportid: e18080 και category: user.*
+ *Κατα την εκτέλεση δημιουργείται ο λογαριασμός ενός διαχειριστή με στοιχεία firstname: Admin, surname: User, email: admin@email.com, password: admin, dateofbirth: 2001-07-13 και category: admin. Επίσης δημιουργείτε ένας λογαριασμός ενός απλού χρήστη με στοιχεία firstname: Vincent, surname: Peters, email: vin@email.com, password: 12345, dateofbirth: 2000-04-27 και category: user.*
 
 ## Εγκατάσταση και εκτέλεση
 
@@ -75,61 +79,110 @@ sudo docker-compose up --build
 Σε αυτή τη σελίδα ένας ήδη καταχωρημένος χρήστης μπορεί να κάνει εισαγωγή στην εφαρμογή εισάγωντας το email του και password.
 Σε περίπτωση που κάποιος νέος χρήστης δεν έχει λογαριασμό του, μπορεί να μεταβεί στην 'SignUp' σελίδα για να δημιουργήσει νέο λογαριασμό.
 
-<img src="./DigitalAirlinesimgs/signInPage.png" width="512">
+<img src="./unipiLibraryimgs/signInPage.png" width="512">
 
 ### SignUp Page
 Στη σελίδα εγγραφής ο χρήστης μπορεί να δημιουργήσει έναν νέο λογαριασμό για να μπορέσει να εισέλθει στην εφαρμογή.
-Δε μπορεί να δημιουργήσει λογαριασμό με email ή passportid που είναι ήδη κατωχηρωμένα στο σύστημα.
+Δε μπορεί να δημιουργήσει λογαριασμό με email που είναι ήδη κατωχηρωμένα στο σύστημα.
 
-<img src="./DigitalAirlinesimgs/signUpPage.png" width="512">
-<img src="./DigitalAirlinesimgs/signUpNewUserPage.png" width="512">
+<img src="./unipiLibraryimgs/signUpPage.png" width="512">
+<img src="./unipiLibraryimgs/signUpNewUserPage.png" width="512">
+
+Αν προσπαθήσει να κάνει εγγραφή με μέιλ που ήδη υπάρχει στο σύστημα του τότε θα εμφανιστεί το εξής μήνυμα:
+<img src="./unipiLibraryimgs/flashmsgAlreadyRegisteredUser.png" width="512">
+
 
 ## User
 ### Homepage
-Ένας εγγεγραμμένος χρήστης αφού εισάγει επιτυχώς τα στοιχεία του και εισέλθει στην υπηρεσία θα μεταφερθεί αυτόματα στην κύρια σελίδα στην οποία μπορεί να δει όλες τις διαθέσιμες πτήσεις που υπάρχουν καταχωρημένες στο σύστημα.
-Μέσω του Navigation Bar μπορεί να περιηγηθεί στις λειτουργίες που παρέχει η υπηρεσία.
+Ένας εγγεγραμμένος χρήστης αφού εισάγει επιτυχώς τα στοιχεία του και εισέλθει στην υπηρεσία θα μεταφερθεί αυτόματα στην κύρια σελίδα στην οποία μπορεί να δει το navigation bar με όλες τις ενέργειες τις οποίες μπορεί να εκτελέσει καθώς και ένα welcome message.
+Μέσω του Navigation Bar, όπως μόλις αναφέρθηκε μπορεί να περιηγηθεί στις λειτουργίες που παρέχει η υπηρεσία.
 
-<img src="./DigitalAirlinesimgs/userHomePage.png" width="512">
+<img src="./unipiLibraryimgs/userHomepage1.png" width="512">
+<img src="./unipiLibraryimgs/userHomepage2.png" width="512">
 
-### Κράτηση Πτήσης
-Σε αυτή τη σελίδα ο χρήστης μπορεί να κάνει κράτηση εισητηρίου σε μια πτήση εισάγοντας το μοναδικό κωδικό της πτήσης που επιθυμεί καθώς και τον τύπο του εισιτηρίου *economy/business*.
+### Κράτηση Βιβλίου
+Σε αυτή τη σελίδα ο χρήστης μπορεί να κάνει κράτηση ενός βιβλίου από αυτά που υπάρχουν στο σύστημα, εισάγοντας το κωδικό ISBN, που είναι μοναδικός για κάθε βιβλίο καθώς και ένα τηλέφωνο επικοινωνίας. 
 
-*(Τα προσωπικά του στοιχεία που απαιτούνται για την κράτηση, παίρνονται αυτόματα από τον λογαριασμό του χρήστη και δεν έχει δικαίωμα να τα επεξεργαστεί)*
+*(Τα προσωπικά του στοιχεία που απαιτούνται για την κράτηση, παίρνονται αυτόματα από τον λογαριασμό του χρήστη που είναι συνδεδεμένος και δεν έχει δικαίωμα να τα επεξεργαστεί.)*
 
-<img src="./DigitalAirlinesimgs/userBookFlightPage.png" width="512">
+<img src="./unipiLibraryimgs/userBookReservation.png" width="512">
+<img src="./unipiLibraryimgs/userBookReservationFilledInForm.png" width="512">
 
-### Ακύρωση Κράτησης
-Σε αυτή τη σελίδα ο χρήστης μπορεί να ακυρώση μία κράτηση που έχει κάνει εισάγωντας το μοναδικό κωδικό της κράτησης.
-*Στο κάτω μέρος της οθόνης εμφανίζονται οι κρατήσεις του χρήστη ώστε να μπορεί να βρει το μοναδικό κωδικό αυτής που επιθυμεί.*
+Στην περίπτωση που το βιβλίο είναι ήδη κρατημένο από κάποιο άλλο χρήστη, θα εμφανίζεται αντίστοιχο μήνυμα.
 
-<img src="./DigitalAirlinesimgs/userCancelFlightPage.png" width="512">
+
+### Επιστροφή Βιβλίου
+Σε αυτή τη σελίδα ο χρήστης μπορεί να ακυρώσει μία κράτηση που έχει κάνει εισάγωντας το μοναδικό κωδικό της κράτησης. 
+
+*Το μοναδικό κωδικό της κάθε κράτησης μπορεί να τον δει στη σελίδα των  κρατήσεων του.*
+
+<img src="./unipiLibraryimgs/userBookReturn.png" width="512">
 
 ### Εμφάνιση Κρατήσεων Χρήστη
 Σε αυτή τη σελίδα εμφανίζονται όλες οι κρατήσεις που έχει κάνει ο συγκεκριμένος χρήστης.
 
-<img src="./DigitalAirlinesimgs/userBookedFlightsPage.png" width="512">
+<img src="./unipiLibraryimgs/userReservations.png" width="512">
 
 ### Διαγραφή λογαριασμού
-Ο χρήστης μπορείνα διαγράψει το λογαριασμό του. Ωστόσο οποιαδήποτε κράτηση έχει κάνει θα παραμείνει στο σύστημα.
+Ο χρήστης μπορεί να διαγράψει το λογαριασμό του. Ωστόσο οποιαδήποτε κράτηση έχει κάνει θα παραμείνει στο σύστημα.
 Έπειτα ο χρήστης θα μεταφέρεται στη σελίδα εγγραφής σε περίπτωση που θέλει να δημιουργήσει νέο λογαριασμό.
 
-<img src="./DigitalAirlinesimgs/userDeleteAccountPage.png" width="512">
+<img src="./unipiLibraryimgs/userDeleteAccountPage.png" width="512">
 
-### Αναζήτηση σημείωσης μέσω Αεροδρομίου Προέλευσης και Προρισμού 
-Ο χρήστης να κάνει αναζήτηση μιας πτήσης βάση του Αεροδρομίου Προέλευσης και Προορισμού.
+### Αναζήτηση Βιβλίου μέσω Τίτλου
+Ο χρήστης να κάνει αναζήτηση ενός βιβλίου βάση του Τίτλου του.
 
-<img src="./DigitalAirlinesimgs/userSearchOriginDestPageNoResults.png" width="512">
-<img src="./DigitalAirlinesimgs/userSearchOriginDestPageResults.png" width="512">
+<img src="./unipiLibraryimgs/userSearchTitlePageNoResults.png" width="512">
+<img src="./unipiLibraryimgs/userSearchTitlePageResults.png" width="512">
 
-### Αναζήτηση σημείωσης μέσω Αεροδρομίου Προέλευσης και Προρισμού και ημερομηνίας αναχώρησης. 
-Ο χρήστης να κάνει αναζήτηση μιας πτήσης βάση του Αεροδρομίου Προέλευσης και Προορισμού και της ημερομηνίας αναχώρησης.
+Στην περίπτωση που το βιβλίο είναι κρατημένο από κάποιο χρήστη εμφανίζεται ανάλογο μήνυμα όπως φαίνεται στην εικόνα.
 
-<img src="./DigitalAirlinesimgs/userSearchOriginDestDatePage.png" width="512">
+*(To Book ID αναφέρεται στο μοναδικό κωδικό κωδικό που έχει το βιβλίο στο σύστημα και ΟΧΙ στον επίσημο ISBN κωδικό του.)*
 
-### Αναζήτηση σημείωσης μέσω ημερομηνίας αναχώρησης. 
-Ο χρήστης να κάνει αναζήτηση μιας πτήσης βάση ημερομηνίας αναχώρησης.
+### Αναζήτηση Βιβλίου μέσω Συγγραφέα. 
+Ο χρήστης να κάνει αναζήτηση ενός βιβλίου βάση του Συγγραφέα.
 
-<img src="./DigitalAirlinesimgs/userSearchDatePage.png" width="512">
+<img src="./unipiLibraryimgs/userSearchAuthorPageNoResults.png" width="512">
+<img src="./unipiLibraryimgs/userSearchAuthorPageResults.png" width="512">
+
+Στην περίπτωση που το βιβλίο είναι κρατημένο από κάποιο χρήστη εμφανίζεται ανάλογο μήνυμα όπως φαίνεται στην εικόνα.
+
+*(To Book ID αναφέρεται στο μοναδικό κωδικό κωδικό που έχει το βιβλίο στο σύστημα και ΟΧΙ στον επίσημο ISBN κωδικό του.)*
+
+### Αναζήτηση Βιβλίου μέσω ISBN. 
+Ο χρήστης να κάνει αναζήτηση ενός βιβλίου βάση κωδικού ISBN.
+
+<img src="./unipiLibraryimgs/userSearchISBNPageNoResults.png" width="512">
+<img src="./unipiLibraryimgs/userSearchISBNPageResults.png" width="512">
+
+Στην περίπτωση που το βιβλίο είναι κρατημένο από κάποιο χρήστη εμφανίζεται ανάλογο μήνυμα όπως φαίνεται στην εικόνα.
+
+*(To Book ID αναφέρεται στο μοναδικό κωδικό κωδικό που έχει το βιβλίο στο σύστημα και ΟΧΙ στον επίσημο ISBN κωδικό του.)*
+
+### Αναζήτηση Βιβλίου μέσω Ημερομηνίας Έκδοσης. 
+Ο χρήστης να κάνει αναζήτηση ενός βιβλίου βάση Ημερομηνίας Έκδοσης.
+
+<img src="./unipiLibraryimgs/userSearchPublicationDatePageNoResults.png" width="512">
+<img src="./unipiLibraryimgs/userSearchPublicationDatesPageResults.png" width="512">
+
+Στην περίπτωση που το βιβλίο είναι κρατημένο από κάποιο χρήστη εμφανίζεται ανάλογο μήνυμα όπως φαίνεται στην εικόνα.
+
+*(To Book ID αναφέρεται στο μοναδικό κωδικό κωδικό που έχει το βιβλίο στο σύστημα και ΟΧΙ στον επίσημο ISBN κωδικό του.)*
+
+### Προβολή όλων των βιβλίων που βρίσκονται στο Συστήμα. 
+Ο χρήστης να δει όλα τα βιβλία που βρίσκονται στο σύστημα καθώς και την διαθεσιμότητά τους.
+
+<img src="./unipiLibraryimgs/userSearchPublicationDatePageNoResults.png" width="512">
+<img src="./unipiLibraryimgs/userSearchPublicationDatesPageResults.png" width="512">
+
+Αναλόγως την διαθεσιμότητα του βιβλίου θα εμφανίζεται ✔ ή x αντιστοίχως
+
+*(To Book ID αναφέρεται στο μοναδικό κωδικό κωδικό που έχει το βιβλίο στο σύστημα και ΟΧΙ στον επίσημο ISBN κωδικό του.)*
+
+### Προβολή Διαθέσιμων Βιβλίων
+Σε αυτή τη σελίδα ο χρήστης μπορεί να δει όλα τα διαθέσιμα για κράτηση βιβλία τα οποία υπάρχουν στο σύστημα.
+
+<img src="./unipiLibraryimgs/userAvailableBooks.png" width="512">
 
 ## Administrator
 
