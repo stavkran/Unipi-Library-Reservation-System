@@ -190,23 +190,20 @@ sudo docker-compose up --build
 Αν κάποιος εισέλθει στο σύστημα ως διαχειριστής μεταφέρεται στο αντίστοιχο Homepage.
 Μέσω του Navigation Bar μπορεί να περιηγηθεί στις λειτουργίες που παρέχει η υπηρεσία.
 
-<img src="./DigitalAirlinesimgs/adminHomePage.png" width="512">
+<img src="./unipiLibraryimgs/adminHomepage1.png" width="512">
+<img src="./unipiLibraryimgs/adminHomepage2.png" width="512">
 
 
-### Δημιουργία Πτήσης
-Σε αυτή τη σελίδα ο χρήστης μπορεί να δημιουργήσει μια πτήση εισάγοντας τα παρακάτω στοιχεία:
-Airport Of Origin, Airport Of Destination, Date (of Departure), Economy Tickets Number, Business Tickets Number, Economy Tickets Price, Business Tickets Price.
+### Εισαγωγή Βιβλίου
+Σε αυτή τη σελίδα ο διαχειριστής μπορεί να δημιουργήσει νέα εγγραφή βιβλίου, εισάγοντας τα παρακάτω στοιχεία:
+Title, Author, Publication Date, ISBN, Summary, Book Pages, Reservation Days
 
-<img src="./DigitalAirlinesimgs/adminCreateFlight.png" width="512">
+<img src="./unipiLibraryimgs/adminImportBook1.png" width="512">
 
-Για κάθε νέα πτήση δημιουργείται αυτόματα από το mongo ένα _id.
-*(Το ίδιο ισχύει και κάθε φορά που γίνεται κράτηση από έναν απλό χρήστη)*
+### Ενημέρωση Μερών Κράτησης 
+Σε αυτή τη σελίδα ο διαχειριστής μπορεί να ανανεώνει τις μέρες κράτησης ενός βιβλίου. Πλκτρολογεί τον ISBN κωδικό του βιβλίου που επιθυμεί και έπειτα συμπληρώνει το νέο αριθμό για τις μέρες κράτησης. Αν αυτό το βιβλίο βρεθεί στο σύστημα, θα ανανεωθούν οι μέρες κράτησης.
 
-### Ενημέρωση τιμών εισιτηρίων 
-Σε αυτή τη σελίδα ο διαχειριστής μπορεί να ανανεώνει τις τιμές των εισιτηρίων μιας πτήσης. Για να βρει τη πτήση που επιθυμεί θα συμπληρώσει τα παρακάτω στοιχεία: 
-Airport Of Origin, Airport Of Destination, Date (Of Departure). Έπειτα θα συμπληρώσει τις νέες τιμές των εισιτηρίων. Ύστερα αν αυτή η πτήση βρεθεί στο σύστημα, θα ανανεωθούν οι τιμές των εισιτηρίων.
-
-<img src="./DigitalAirlinesimgs/adminUpdateTicketPricesPage.png" width="512">
+<img src="./unipiLibraryimgs/adminUpdateReservationDays.png" width="512">
 
 ### Διαγραφή Πτήσης
 Ένας διαχειριστής μπορεί να διαγράφει κάποια πτήση, πληκτρολογώντας το μοναδικό κωδικό της. Απαραίτητη προϋπόθεση είναι να μην έχει γίνει καμοία κράτηση για αυτή τη πτήση, αλλιώς η διαγραφή της δεν είναι δυνατή. 
