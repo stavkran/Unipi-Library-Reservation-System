@@ -164,7 +164,7 @@ sudo docker-compose up --build
 Ο χρήστης να κάνει αναζήτηση ενός βιβλίου βάση Ημερομηνίας Έκδοσης.
 
 <img src="./unipiLibraryimgs/userSearchPublicationDatePageNoResults.png" width="512">
-<img src="./unipiLibraryimgs/userSearchPublicationDatesPageResults.png" width="512">
+<img src="./unipiLibraryimgs/userSearchPublicationDatePageNoResults.png" width="512">
 
 Στην περίπτωση που το βιβλίο είναι κρατημένο από κάποιο χρήστη εμφανίζεται ανάλογο μήνυμα όπως φαίνεται στην εικόνα.
 
@@ -245,7 +245,7 @@ Title, Author, Publication Date, ISBN, Summary, Book Pages, Reservation Days
 Ο διαχειριστής να κάνει αναζήτηση ενός βιβλίου βάση Ημερομηνίας Έκδοσης.
 
 <img src="./unipiLibraryimgs/adminSearchPublicationDatePageNoResults.png" width="512">
-<img src="./unipiLibraryimgs/adminSearchPublicationDatesPageResults.png" width="512">
+<img src="./unipiLibraryimgs/adminSearchPublicationDatePageResults.png" width="512">
 
 Στην περίπτωση που το βιβλίο είναι κρατημένο από κάποιο χρήστη εμφανίζεται ανάλογο μήνυμα όπως φαίνεται στην εικόνα.
 
