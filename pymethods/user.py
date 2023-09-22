@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from flask import Blueprint, request, render_template, redirect, url_for, session, flash
 from itertools import chain
 from datetime import datetime, timedelta
+from bson import ObjectId
 
 #User blueprint
 user = fk.Blueprint("user", __name__, static_folder="static", template_folder="templates")
@@ -53,12 +54,17 @@ def userAvailableBooks():
 @user.route("/")
 @user.route("/reserveBook", methods=["GET","POST"])
 def reserveBook():
-    if fk.request.method == "GET":
+    user = usersDb.find_one({"email": session["email"]})
+    if request.method == "GET":
         if session.get("email"):
             user = usersDb.find_one({"email": session["email"]})
-
             if user:
-                return fk.render_template("userReserveBook.html", user=user)
+                user_data = {
+                    "firstname": user.get("firstname"),
+                    "surname": user.get("surname"),
+                    "email": user.get("email")
+                }
+                return render_template("userReserveBook.html", user=user_data)
             else:
                 flash("User not found.", "error")
                 return redirect(url_for("auth.signIn"))
@@ -72,6 +78,7 @@ def reserveBook():
 
         # Get the ISBN of the book to be reserved from the form
         isbn = request.form.get("isbn")
+        mobile = request.form.get("mobile")
 
         # Check if the book with the given ISBN exists
         book = booksDb.find_one({"isbn": isbn})
@@ -88,7 +95,7 @@ def reserveBook():
             return redirect(request.referrer)
 
         # Calculate the reservation end date based on the 'reservationdays' field
-        reservation_days = book.get("reservationdays", 14)  # Default to 14 days if 'reservationdays' is not specified
+        reservation_days = int(book.get("reservationdays", 14))  # Default to 14 days if 'reservationdays' is not specified
         reservation_end_date = datetime.now() + timedelta(days=reservation_days)
 
         # Create a reservation document and save it to the 'reservedbooks' collection
@@ -96,9 +103,16 @@ def reserveBook():
             "title": book["title"],
             "author": book["author"],
             "isbn": book["isbn"],
-            "user_email": session["email"],  # Get the signed-in user's email
-            "reservationdate": datetime.now(),
-            "returndate": reservation_end_date  # Set the return date based on reservation days
+            "user": {
+                "firstname": user["firstname"],  
+                "surname": user["surname"],      
+                "email": user["email"],          
+                "mobile": mobile       
+            },
+            "reservation": {
+                "reservationdate": datetime.now().strftime('%Y-%m-%d'),
+                "returndate": reservation_end_date.strftime('%Y-%m-%d')
+            }
         }
         reservedbooksDb.insert_one(reservation)
 
@@ -113,6 +127,7 @@ def reserveBook():
 
         return redirect(request.referrer)
     
+
 # See Your Reservation
 @user.route("/")
 @user.route("/userReservations", methods=["GET"])
@@ -124,18 +139,31 @@ def userReservations():
     # Get the user's email
     user_email = session["email"]
 
-    # Find the user's reservations
-    # user_reservations = list(reservedbooksDb.find({"user.email": user_email}))
-
-    # print(user_reservations) 
     users_reservations = list(reservedbooksDb.find({}))
     print(users_reservations)
 
-    user_reservations = list(reservedbooksDb.find({"user.user_email": user_email}))
+    user_reservations = list(reservedbooksDb.find({"user.email": user_email}))
 
     print(user_reservations)
 
-    return render_template("userReservations.html", user_reservations=user_reservations)
+    # Calculate days remaining for each reservation
+    for reservation in user_reservations:
+        returndate = datetime.strptime(reservation['reservation']['returndate'], '%Y-%m-%d')
+        today = datetime.now()
+        days_remaining = (returndate - today).days
+        reservation['days_remaining'] = days_remaining
+
+    return render_template("userReservations.html", user_reservations=user_reservations, is_book_return_soon=is_book_return_soon)
+
+def is_book_return_soon(return_date):
+    # Convert the return_date string to a datetime object
+    return_date_obj = datetime.strptime(return_date, '%Y-%m-%d')
+
+    # Calculate the difference between the return date and the current date
+    time_difference = return_date_obj - datetime.now()
+
+    # Check if the time difference is less than or equal to 1 day
+    return time_difference <= timedelta(days=1)
     
 # See All Registered Books
 @user.route("/search")
@@ -228,42 +256,32 @@ def searchViaDate():
 @user.route("/unreserveBook", methods=["GET","POST"])
 def unreserveBook():
     if fk.request.method == "GET":
-        with open("reservedbooks.json", "r") as reserved_books_file:
-            reserved_books_data = json.load(reserved_books_file)
-
-        # Filter reserved books based on the user's email
-        user_reserved_books = [reservedbook for reservedbook in reserved_books_data if reservedbooksDb["email"] == fk.session["email"]]
-        
-        return fk.render_template("userUnreservedBook.html", reservedBooks=user_reserved_books)
+        return fk.render_template("userUnreservedBook.html")
     else:
-        reservedBookid = fk.request.form["reservedBookid"]
-        with open("reservedbooks.json", "r") as reserved_books_file:
-            reserved_books_data = json.load(reserved_books_file)
-        
-        # Find the reserved book to cancel reservation
-        book_to_unreserve = next((book for book in reserved_books_data if book["_id"] == reservedBookid), None)
-        if book_to_unreserve:
-            with open("reservedbooks.json", "w") as reserved_books_file:
-                # Remove the book from the reserved books data
-                reserved_books_data.remove(book_to_unreserve)
-                json.dump(reserved_books_data, reserved_books_file, indent=4)
-            
-            with open("books.json", "r") as books_file:
-                books_data = json.load(books_file)
+        if not session.get("email"):
+            flash("You must be logged in to cancel a reservation.", "error")
+            return redirect(url_for("auth.signIn"))
 
-            # Find the corresponding book in the books data
-            matching_book = next((book for book in books_data if book["isbn"] == book_to_unreserve["isbn"]), None)
-            if matching_book:
-                with open("flights.json", "w") as flights_file:
-                    json.dump(books_data, books_file, indent=4)
-                
-                fk.flash("Book reservation successfully canceled!")
-            else:
-                fk.flash("Book Reservation not found!")
-        else:
-            fk.flash("There is no book reservation with such ID.")
-        
-        return fk.redirect(fk.url_for("user.userHomePage"))
+        # Get the reservation ID from the form
+        reservation_id = request.form.get("reservedbook")
+
+        # Check if the reservation exists
+        existing_reservation = reservedbooksDb.find_one({"_id": ObjectId(reservation_id)})
+
+        if not existing_reservation:
+            flash("Reservation not found. Please check the reservation ID.", "error")
+            return redirect(request.referrer)
+
+        # Check if the user is authorized to cancel this reservation
+        if existing_reservation["user"]["email"] != session["email"]:
+            flash("You are not authorized to cancel this reservation.", "error")
+            return redirect(request.referrer)
+
+        # Delete the reservation
+        reservedbooksDb.delete_one({"_id": ObjectId(reservation_id)})
+
+        flash("Reservation canceled successfully.", "success")
+        return redirect(request.referrer)
 
 
         

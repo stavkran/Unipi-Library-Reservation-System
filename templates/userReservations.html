@@ -11,34 +11,48 @@
     {% endwith %}
     
     <!-- User's Reservations -->
-    <h1>Your Reservations</h1>
+    <center><h1>Your Reservations</h1></center>
     <table class="table table-striped">
         <thead style="color: #a8b2d1;">
             <tr>
+                <th>Reservation ID</th>
                 <th>Title</th>
                 <th>Author</th>
                 <th>ISBN</th>
                 <th>Reservation Date</th>
                 <th>Return Date</th>
+                <th>Days Remaining</th>
             </tr>
         </thead>
         <tbody>
             {% for reservation in user_reservations %}
-                <tr>
+                <tr style="color: #ccd6f6;">
+                    <td>{{reservation._id}}</td>
                     <td>{{ reservation.title }}</td>
                     <td>{{ reservation['author'] }}</td>
                     <td>{{ reservation['isbn'] }}</td>
                     <td>{{ reservation['reservation']['reservationdate'] }}</td>
                     <td>{{ reservation['reservation']['returndate'] }}</td>
+                    <td>
+                        {% if reservation['days_remaining'] <= 1 %}
+                            <span style="font-weight: bolder; color: rgb(194, 0, 0);">
+                                Debug: days_remaining={{ reservation['days_remaining'] }}, returndate={{ reservation['reservation']['returndate'] }}
+                                The book needs to be returned in {{ reservation['days_remaining'] }} day.
+                                If you don't return it by {{ reservation['reservation']['returndate'] }}, a fine will be charged.
+                            </span>
+                        {% else %}
+                            {{ reservation['days_remaining'] }} days
+                        {% endif %}
+                    </td>
                 </tr>
-                <!-- {% if is_book_return_soon(reservation['reservation']['returndate']) %}
+                {% if is_book_return_soon(reservation['reservation']['returndate']) %}
                     <tr>
                         <td colspan="5" style="font-weight: bolder; color: rgb(194, 0, 0);">
                             The book with the title '{{ reservation['title'] }}' you've reserved needs to be returned soon.
                             If you don't return it by {{ reservation['reservation']['returndate'] }}, a fine will be charged.
                         </td>
                     </tr>
-                {% endif %} -->
+                {% endif %}
             {% endfor %}
         </tbody>
     </table>
