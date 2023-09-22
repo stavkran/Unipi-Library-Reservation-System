@@ -47,7 +47,7 @@ reservedbooks:
 user:
 
 | firstname | surname | email   | mobile | 
-|-----------|---- ----|---------|--------|
+|-----------|-------- |---------|--------|
 | string    | string  | string  | string |
 
 reservation:
