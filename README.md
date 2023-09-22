@@ -260,14 +260,14 @@ Title, Author, Publication Date, ISBN, Summary, Book Pages, Reservation Days
 ### Πληροφορίες Βιβλίου
 Αν ο διαχειριστής επιθυμεί να δει τις πληροφορίες για έναι βιβλίο. Σε αυτή τη σελίδα αρχικά φαίνονται πολύ βασικές πληροφορίες για το βιβλία που βρίσκονται στο σύστημα όπως ISBN κωδικός, Τίτλος, Συγγραφέας. 
 
-<img src="./unipiLibraryimgs/adminΒοοκDetails1.png" width="512">
+<img src="./unipiLibraryimgs/adminBookDetails1.png" width="512">
 
 Για να δει παραπάνω πληροφορίες για το κάθε βιβλίο, μπορεί να πατήσει το αντίστοιχο κουμπί 'See Details' το οποίο θα τον ανακαευθύνει σε μία άλλη σελίδα. 
 Για το κάθε βιβλίο μπορεί να δει όλες τις διαθέσιμες πληροφορίες του καθώς και την περίληψη.
 
-<img src="./unipiLibraryimgs/adminΒοοκDetails1.png" width="512">
+<img src="./unipiLibraryimgs/adminBookDetails2.png" width="512">
 
 Αν αυτό το βιβλίο είναι κρατημένο από κάποιο χρήστη, τότε φαίνονται και οι πληροφορίες αυτού του χρήστη. 
 
-<img src="./unipiLibraryimgs/adminΒοοκDetails3.png" width="512">
+<img src="./unipiLibraryimgs/adminBookDetails3.png" width="512">
 
