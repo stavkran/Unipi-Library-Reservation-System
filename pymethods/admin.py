@@ -20,8 +20,10 @@ reservedbooksDb = db["reservedbooks"]
 @admin.route("/")
 @admin.route("/adminHome", methods=["GET"])
 def adminHome():
-    all_books = list(booksDb.find({}))
-    return fk.render_template("adminHomePage.html", books = all_books)
+    if fk.request.method == "GET":
+        return fk.render_template("adminHomePage.html")
+    else:
+        return fk.redirect(fk.url_for("admin.adminHome"))
 
 # Import Book
 @admin.route("/")
@@ -59,25 +61,39 @@ def updateResDays():
     if fk.request.method == "GET":
         return fk.render_template("adminUpdateResDays.html")
     else:
-        # Check if book registration exists.
         isbn = fk.request.form["isbn"]
         reservationdays = fk.request.form["reservationdays"]
         bookexists = booksDb.find_one({
             "isbn": isbn
         })
-        if (bookexists is None):
+
+        if bookexists:
+            # Check if there are reservations for the book.
+            existing_reservation = reservedbooksDb.find_one({"isbn": isbn})
+
+            if existing_reservation:
+                fk.flash("This book has existing reservations and cannot be updated.")
+                return fk.redirect(fk.url_for("admin.updateResDays"))
+            else:
+                # Update the reservation days of the book registration.
+                booksDb.update_one({"isbn": isbn}, {"$set": {"reservationdays": reservationdays}})
+                fk.flash("Reservation days of the book updated successfully!")
+                return fk.redirect(fk.url_for("admin.adminHome"))
+        else:
             fk.flash("This book registration does not exist.")
             return fk.redirect(fk.url_for("admin.updateResDays"))
-        else:
-            # Update the reservation days of the book registration.
-            booksDb.update_one({"isbn": isbn}, {"$set": {"reservationdays": reservationdays}})
-            fk.flash("Reservation days of the book updated successfully!")
-            return fk.redirect(fk.url_for("admin.adminHome"))
+        # if (bookexists is None):
+        #     fk.flash("This book registration does not exist.")
+        #     return fk.redirect(fk.url_for("admin.updateResDays"))
+        # else:
+        #     booksDb.update_one({"isbn": isbn}, {"$set": {"reservationdays": reservationdays}})
+        #     fk.flash("Reservation days of the book updated successfully!")
+        #     return fk.redirect(fk.url_for("admin.adminHome"))
     
 # Delete book registration
 @admin.route("/")
 @admin.route("/deleteBook", methods=["GET", "POST"])
-def deleteFlight():
+def deleteBook():
     if fk.request.method == "GET":
         return fk.render_template("adminDeleteBook.html")
     else:
@@ -86,7 +102,7 @@ def deleteFlight():
         bookexists =booksDb.find_one({"isbn": isbn})
         reservationexeists = reservedbooksDb.find_one({"isbn": isbn})
 
-        if (bookexists):
+        if bookexists:
             # Check if the book is reserved by any user.
             if reservationexeists is None:
                 # Delete the book registration from the system
@@ -116,6 +132,18 @@ def searchViaTitle():
         else:
             books = booksDb.find({"title": title})
             return fk.render_template("adminSearchViaTitle.html", books=books, is_book_reserved=is_book_reserved)
+
+# See All Registered Books
+@admin.route("/search")
+@admin.route("/adminSeeAllBooks", methods=["GET"])
+def userSeeAllBooks():
+    all_books = list(booksDb.find())
+    
+    reserved_isbns = [reservation["isbn"] for reservation in reservedbooksDb.find()]
+
+    available_books = [book for book in all_books if book["isbn"] not in reserved_isbns]
+
+    return fk.render_template("adminSeeAllBooks.html", books=available_books, is_book_reserved=is_book_reserved)
 
 # Search via Author      
 @admin.route("/search")
@@ -172,40 +200,26 @@ def searchViaDate():
             books = booksDb.find({"publicationdate": publicationdate})
             return fk.render_template("adminSearchViaDate.html", books=books, is_book_reserved=is_book_reserved)
 
-#Show all book details
+# Admin route to see all registered books
 @admin.route("/")
-@admin.route("/showBookDetails", methods=["GET", "POST"])
-def showDetails():
+@admin.route("/adminAllRegisteredBooks", methods=["GET"])
+def adminAllRegisteredBooks():
     # Get all books from the database
-    books = list(db.booksDb.find())
+    books = list(booksDb.find())
 
-    # Create an empty list to hold the book details
-    book_details = []
+    return fk.render_template("adminAllRegisteredBooks.html", books=books)
 
-    for book in books:
-        book_detail = {
-            "title": book["title"],
-            "author": book["author"],
-            "publicationdate": book["publicationdate"],
-            "isbn": book["isbn"],
-            "summary": book["summary"],
-            "pagesnum": book["pagesnum"],
-            "reservationdays": book["reservationdays"],
-            "reserved_by": None
-        }
-    
-        # Check if the book is reserved
-        reserved_book = db.reservedbooksDb.find_one({"title": book["title"]})
-        if reserved_book:
-            user = reserved_book["user"]
-            book_detail["reserved_by"] = {
-                "firstname": user["firstname"],
-                "surname": user["surname"],
-                "email": user["email"],
-                "mobile": user["mobile"]
-            }
+#Show all book details
+@admin.route("/viewBookDetails/<isbn>", methods=["GET"])
+def viewBookDetails(isbn):
+    # Find the book by ISBN
+    book = booksDb.find_one({"isbn": isbn})
 
-        book_details.append(book_detail)
+    # Check if the book is reserved
+    reservation = reservedbooksDb.find_one({"isbn": isbn})
 
-    return fk.render_template("adminBookDetails.html", book_details=book_details)
-
+    if book:
+        return fk.render_template("adminBookDetails.html", book=book, reservation=reservation)
+    else:
+        fk.flash("Book not found.", "error")
+        return fk.redirect(fk.url_for("admin.adminSeeAllBooks"))

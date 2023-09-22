@@ -1,59 +1,68 @@
+<!-- bookDetails.html -->
 {% extends "adminBase.html" %}
-{% block title %}Show Book Details{% endblock title %}
 {% block content %}
-<!-- Flashed messages -->
-  {% with messages = get_flashed_messages()%}
-    {% if messages %}
-      {%for msg in messages %}
-          <p>{{msg}}</p>
-      {% endfor %}
-    {% endif %}
-  {% endwith %}
-
-  <center>
-<form action="/admin/showBookDetails" method="POST" name="formisbn_form">
-    <div class="form-group">
-        <label for="isbn"><h2>Enter Book ISBN:</h2></label>
-        <input type="text" class="form-control" id="isbn" name="isbn">
-    </div>
-    <button type="submit" class="btn btn-primary">Find</button>
-</form>
-
-<!-- Show Book -->
-<br><br><h2>See Book Details</h2>
-{% for book in books %}
-<div class="card-wrapper">
-  <div class="card">
-    <h1 class="center"></h1>
-    <form action="/admin/showBookDetails" method="POST" name="showDetails_form">
-      <li class="list-group-item">
-        <p>
-            <strong>Book Title:</strong> {{ book.title }}<br>
-            <strong>Author:</strong> <br> {{ book.author }}<br>
-            <strong>Publication Date:</strong> {{ book.publicationdate }}<br>
-            <strong>ISBN:</strong> {{ book.isbn }} <br>
-            <strong>Summary:</strong> {{ book.summary }} <br>
-            <strong>Book Pages:</strong> {{ book.pagesnum }} <br>
-            <strong>Reservation Days:</strong> {{ book.reservationdays }} <br>    
-            
-            {% for reservation in reservationdetails %}
-
-            {% if reservation.isbn == book.isbn and reservation.title == book.title %}
-            <h3>Person whom has reserved the book</h3>
-            <strong>Firstname: </strong> {{ reservation.firstname }} <br>
-            <strong>Surname: </strong> {{ reservation.surname }} <br>
-            <strong>Mobile number: </strong> {{ reservation.mobile }} <br>
-            <strong>Email: </strong> {{ reservation.email }} <br>
-            {% endif %}
-
-            {% endfor %}
-        </p>
-      </li>
-      <!-- Check for errors -->
-      <p class="error error--hidden"></p>
-    </form>
-  </div>
-</div>
-  {% endfor %}
-</center>
-{% endblock %}
+<h1>Book Details</h1>
+<table class="table table-bordered" style="color: #ccd6f6;">
+    <tr>
+        <th>ISBN</th>
+        <td>{{ book.isbn }}</td>
+    </tr>
+    <tr>
+        <th>Title</th>
+        <td>{{ book.title }}</td>
+    </tr>
+    <tr>
+        <th>Author</th>
+        <td>{{ book.author }}</td>
+    </tr>
+    <tr>
+        <th>Publication Date</th>
+        <td>{{ book.publicationdate }}</td>
+    </tr>
+    <tr>
+        <th>Number of Pages</th>
+        <td>{{ book.pagesnum }}</td>
+    </tr>
+    <tr>
+      <th>Summary</th>
+      <td>{{ book.summary }}</td>
+    </tr>
+    <tr>
+      <th>Reservation Days</th>
+      <td>{{ book.reservationdays }}</td>
+    </tr>
+    
+</table>
+{% if reservation %}
+<h2>Reservation Details</h2>
+<table class="table table-bordered" style="color: #ccd6f6;">
+    <tr>
+        <th>Reserved By</th>
+        <td>{{ reservation.user.firstname }} {{ reservation.user.surname }}</td>
+    </tr>
+    <tr>
+        <th>User Email</th>
+        <td>{{ reservation.user.email }}</td>
+    </tr>
+    <tr>
+        <th>Reservation ID</th>
+        <td>{{ reservation._id }}</td>
+    </tr>
+    <tr>
+        <th>Mobile</th>
+        <td>{{ reservation.user.mobile }}</td>
+    </tr>
+    <tr>
+        <th>Reservation Date</th>
+        <td>{{ reservation.reservation.reservationdate }}</td>
+    </tr>
+    <tr>
+        <th>Return Date</th>
+        <td>{{ reservation.reservation.returndate }}</td>
+    </tr>
+</table>
+{% else %}
+<p>This book is not reserved by any user.</p>
+{% endif %}
+<a href="{{ url_for('admin.adminAllRegisteredBooks') }}" class="btn btn-primary">Back to All Books</a>
+{% endblock content %}

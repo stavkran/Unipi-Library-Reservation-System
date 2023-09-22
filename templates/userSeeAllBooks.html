@@ -4,7 +4,7 @@
 {% block content %}
 
 <center>
-    <h2>Available Books:</h2>
+    <h2>All Registered Books:</h2>
 
 <!-- Flashed messages -->
   {% with messages = get_flashed_messages()%}
@@ -20,7 +20,7 @@
 
 {% for book in books %}
 <div class="card-wrapper">
-  <div class="card">
+  <div class="card" style="border-color: #ccd6f6;">
     <h1 class="center"></h1>
     <form action="/user/userSeeAllBooks" method="POST" name="userAvailableBooks_form">
       <li class="list-group-item">
@@ -47,6 +47,7 @@
     {% endif %}
   </div>
 </div>
+<hr style="border-color: #ccd6f6;">
   {% endfor %}
 </center>
 {% endblock %}
